@@ -1,0 +1,5 @@
+.vscode-ctags
+*.hex
+*.elf
+*.o
+*.map
