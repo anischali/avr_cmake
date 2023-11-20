@@ -5,7 +5,7 @@ SER_PORT=/dev/ttyUSB0
 PROG_EXE=avrdude
 PROG_PARAMS=-c arduino -P $(SER_PORT) -b 115200 -p $(DEVICE)
 CC=avr-gcc
-CFLAGS=-DF_CPU=16000000UL -Os -g3 -Wall -c -fmessage-length=0 -ffunction-sections -fdata-sections -mmcu=$(DEVICE) -I./lib/usart/
+CFLAGS=-DF_CPU=16000000UL -Os -g3 -Wall -c -fmessage-length=0 -ffunction-sections -fdata-sections -mmcu=$(DEVICE) -I./lib/usart -I./lib/pio
 LDFLAGS=-mmcu=$(DEVICE) -Xlinker -Map=$(FIRMWARE).map -Xlinker --gc-sections
 SOURCES=lib/usart/usart.c main.c
 
