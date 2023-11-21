@@ -33,3 +33,4 @@ add_custom_command(
         COMMENT "Generate .bin extension file firmware")
 
 SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
+include(upload.cmake)
