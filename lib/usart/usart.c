@@ -30,7 +30,9 @@ void usart_printf(const char *fmt, ...)
 
 void usart_init()
 {
+#ifndef BAUD
 #define BAUD 38400
+#endif
 #include <util/setbaud.h>
     UBRR0H = UBRRH_VALUE;
     UBRR0L = UBRRL_VALUE;
