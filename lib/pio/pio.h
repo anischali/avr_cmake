@@ -3,13 +3,13 @@
 #include <avr/io.h>
 
 enum pio_dir {
-    INPUT_DIR = 0x1,
-    OUTPUT_DIR = 0x2,
+    INPUT = 0x1,
+    OUTPUT = 0x2,
     INPUT_PULLUP= 0x4
 };
 
-#define enable_pio(port, pin, dir)\
-if (dir & OUTPUT_DIR) \
+#define pio_enable(port, pin, dir)\
+if (dir & OUTPUT) \
     DDR##port |= _BV(pin); \
 else {\
     DDR##port &= ~_BV(pin); \
@@ -19,12 +19,12 @@ else {\
 }
 
 
-#define disable_pio(port, pin)      DDR##port &= ~_BV(pin); PORT##port &= ~_BV(pin)
+#define pio_disable(port, pin)      DDR##port &= ~_BV(pin); PORT##port &= ~_BV(pin)
 
 
-#define pin_set(port, pin)          PORT##port |= _BV(pin)
-#define pin_clear(port, pin)        PORT##port &= ~_BV(pin)
-#define pin_toggle(port, pin)       PORT##port ^= _BV(pin)
-#define pin_get(port, pin)        (PORT##port & _BV(pin))
+#define pio_set(port, pin)          PORT##port |= _BV(pin)
+#define pio_clear(port, pin)        PORT##port &= ~_BV(pin)
+#define pio_toggle(port, pin)       PORT##port ^= _BV(pin)
+#define pio_get(port, pin)        (PORT##port & _BV(pin))
 
 #endif
