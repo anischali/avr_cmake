@@ -6,7 +6,7 @@
 
 int main() {
 
-    enable_pio(B, 5);
+    enable_pio(B, 5, OUTPUT_DIR);
     usart_init();
     sei();
     uint8_t cnt = 0;
