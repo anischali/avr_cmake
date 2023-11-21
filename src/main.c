@@ -14,7 +14,7 @@ int main() {
     {
         pin_toggle(B, 5);
         _delay_ms(250);
-        usart_printf("loop: %d\n\r", ++cnt);
+        usart_printf("loop (cmake): %d\n\r", ++cnt);
     }
 
     return 0;

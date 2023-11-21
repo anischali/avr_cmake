@@ -10,5 +10,6 @@
 #define pin_set(port, pin)          PORT##port |= _BV(pin)
 #define pin_clear(port, pin)        PORT##port &= ~_BV(pin)
 #define pin_toggle(port, pin)       PORT##port ^= _BV(pin)
+#define pin_value(port, pin)        (PORT##port & _BV(pin))
 
 #endif
