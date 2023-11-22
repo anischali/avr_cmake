@@ -9,9 +9,11 @@ set(AVR_PROJECT_SOURCES
     lib/usart/usart.h
     lib/usart/usart.c
     lib/pio/pio.h
+    lib/adc/adc.h
 )
 
 set(AVR_PROJECT_HEADERS_DIR
     lib/usart/
     lib/pio/
+    lib/adc/
 )
