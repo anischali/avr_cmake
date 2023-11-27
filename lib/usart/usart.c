@@ -1,10 +1,13 @@
 #include "usart.h"
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
 
 static char buffer[128];
+
+static void (*usart_recv_callback)(char c) = NULL;
 
 static inline void usart_transmit(unsigned int data)
 {
@@ -28,7 +31,7 @@ void usart_printf(const char *fmt, ...)
 }
 
 
-void usart_init()
+void usart_init(void (*recv_callback)(char c))
 {
 #ifndef BAUD
 #define BAUD 38400
@@ -37,8 +40,22 @@ void usart_init()
     UBRR0H = UBRRH_VALUE;
     UBRR0L = UBRRL_VALUE;
    
-    UCSR0B |= (1 << RXCIE0) | (1 << TXEN0);
-    UCSR0B |= (1 << RXEN0) | (1 << TXEN0);
+    UCSR0B |= _BV(TXEN0) | _BV(RXEN0);
     
-    UCSR0C |= (1 << UCSZ01) | (1 << UCSZ00);
+    if (recv_callback) {
+        UCSR0B |= _BV(RXCIE0);
+        usart_recv_callback = recv_callback;
+    }
+
+    UCSR0C |= _BV(UCSZ01) | _BV(UCSZ00);
+}
+
+
+ISR(USART_RX_vect) {
+    char c = UDR0;
+    if (usart_recv_callback)
+    {
+        usart_recv_callback(c);
+    }
+    sei();
 }
