@@ -28,15 +28,12 @@ void usart_printf(const char *fmt, ...)
     {
         usart_transmit(buffer[i]);
     }
+    va_end(args);
 }
 
 
 void usart_init(void (*recv_callback)(char c))
 {
-#ifndef BAUD
-#define BAUD 38400
-#endif
-#include <util/setbaud.h>
     UBRR0H = UBRRH_VALUE;
     UBRR0L = UBRRL_VALUE;
    
