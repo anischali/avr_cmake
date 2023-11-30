@@ -17,3 +17,6 @@ set(AVR_PROJECT_HEADERS_DIR
     lib/pio/
     lib/adc/
 )
+
+
+set(AVR_EXTRA_DEFINITIONS)

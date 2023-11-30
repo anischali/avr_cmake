@@ -13,6 +13,7 @@ add_executable(${AVR_PROJECT_NAME}.elf
     ${AVR_PROJECT_SOURCES}
 )
 
+add_definitions(${AVR_EXTRA_DEFINITIONS})
 
 add_custom_command(
 		TARGET ${AVR_PROJECT_NAME}.elf POST_BUILD
