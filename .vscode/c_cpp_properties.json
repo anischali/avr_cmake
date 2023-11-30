@@ -3,8 +3,9 @@
     {
       "name": "linux-gcc-x64",
       "includePath": [
+        "/usr/lib/avr/include/**",
         "${workspaceFolder}/**",
-        "/usr/lib/avr/include/"
+        "${workspaceFolder}/lib/**"
       ],
       "compilerPath": "/usr/bin/gcc",
       "cStandard": "${default}",
