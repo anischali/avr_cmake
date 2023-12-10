@@ -148,17 +148,20 @@ ISR(PCINT2_vect)
 }
 
 int main() {
+    uint16_t p, val = 0;
     usart_init(pwm_usart_recv);
-    pio_enable(D, 5, OUTPUT);
-    pio_enable(B, 5, OUTPUT);
-    pio_enable(C, 0, OUTPUT);
-    pio_enable(D, 6, INPUT_PULLUP);
-    pio_interrupt(2, 22);
+    test_pwm();
     sei();
-   // test_pwm();
 
+    adc_setup(ADC_AREF_PIN, ADC_PRESCALER_2);
     while (1)
     {
+        p = adc_read_sync(ADC_CHANNEL_0_PC0);
+        if (p != val)
+        {
+            val = p;
+            usart_printf("Potontiometer value is: %d\n\r", val);
+        }
         /*
         if (OCR2A != duty)
         {
