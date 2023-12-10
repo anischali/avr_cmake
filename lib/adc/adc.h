@@ -58,7 +58,7 @@
 
 /**
  * @brief Activate an ADC Channel
- * @param channel an ADC channel number between 0 and 8 (ADC8 for temperature sensors)
+ * @param channel an ADC channel number between 0 and 8.
  */
 #define adc_select(channel) ADMUX |= (channel & 0x0FU)
 
@@ -72,11 +72,20 @@
     adc_prescaler(prescaler); \
     adc_enable()
 
+#define ADC_CHANNEL_0_PC0           0
+#define ADC_CHANNEL_1_PC1           1
+#define ADC_CHANNEL_2_PC2           2
+#define ADC_CHANNEL_3_PC3           3
+#define ADC_CHANNEL_4_PC4           4
+#define ADC_CHANNEL_5_PC5           5
+#define ADC_CHANNEL_6_ADC6          6
+#define ADC_CHANNEL_7_ADC7          7
+#define ADC_CHANNEL_8_ADC8          8
 
 /**
  * @brief Read an ADC channel on given channel.
  * 
- * @param channel an ADC channel number between 0 and 8 (ADC8 for temperature sensors) to read.
+ * @param channel an ADC channel number between 0 and 8 (ADC8 for temperature) to read.
  * @return int the result of the ADC Channel
  */
 static inline int adc_read_sync(uint8_t channel)
