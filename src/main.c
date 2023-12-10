@@ -153,7 +153,7 @@ int main() {
     test_pwm();
     sei();
 
-    adc_setup(ADC_AREF_PIN, ADC_PRESCALER_2);
+    adc_setup(ADC_AREF_PIN, ADC_PRESCALER_128);
     while (1)
     {
         p = adc_read_sync(ADC_CHANNEL_0_PC0);
