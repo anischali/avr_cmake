@@ -20,6 +20,14 @@
  */
 #define adc_busy() (ADCSRA & _BV(ADSC))
 
+#define ADC_PRESCALER_2     1
+#define ADC_PRESCALER_4     2
+#define ADC_PRESCALER_8     3
+#define ADC_PRESCALER_16    4
+#define ADC_PRESCALER_32    5
+#define ADC_PRESCALER_64    6
+#define ADC_PRESCALER_128   7
+
 /**
  * @brief Determine the division factor between the system 
  *      clock frequency and the input clock to the ADC.
@@ -33,11 +41,15 @@
  */
 #define adc_prescaler(pres) ADCSRA |= (pres & 0x07U)
 
+#define ADC_AREF_PIN                        0x0
+#define ADC_AVCC_AREF_CAPACITY              0x1
+#define ADC_INTERNAL1_1V_AREF_CAPACITY      0x3
+
 /**
  * @brief Set an ADC reference
  * @param ref the Reference for the ADC Comparator
  *
- *       00b ---> AREF, internal VREF turned off
+ *       00b ---> AREF pin, internal VREF turned off
  *       01b ---> AVCC with external capacitor at AREF pin
  *       10b ---> Reserved
  *       11b ---> Internal 1.1V voltage reference with external capacitor at AREF pin
