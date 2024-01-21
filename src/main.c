@@ -12,13 +12,19 @@
 #define max(a, b) ((a > b) ? a : b)
 
 static volatile uint8_t duty = 120;
+#define pwm_init(timer_num, side) \
+TCCR##timer_num##side |= _BV(COM##timer_num)
+
 
 static inline void test_pwm()
 {
-    pio_enable(B, 3, OUTPUT);
-    pio_enable(D, 3, OUTPUT);
-    TCCR2A = _BV(COM2A1) | _BV(COM2B1) | _BV(WGM20);
-    TCCR2B = _BV(CS22);
+    pio_enable(B, 1, OUTPUT); // D9
+    pio_enable(B, 2, OUTPUT); // D10
+
+    TCCR1A |= _BV(COM1B1) | _BV(COM1A1) | _BV(WGM01) | _BV(WGM00);
+    TCCR1B |= (1<<WGM02) | (1<<CS00);
+
+    OCR1A = OCR1B = 0;
 }
 
 #define set_duty_cycle(duty) OCR2A = duty; OCR2B = duty
@@ -58,6 +64,9 @@ void pwm_usart_recv(char c) {
             duty -= 10;
             break;
     }
+    usart_printf("duty: %d\n\r", duty);
+    OCR1B = duty;
+    OCR1A = 255 - duty;
 }
 
 
