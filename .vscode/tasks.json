@@ -1,0 +1,56 @@
+{
+    "tasks": [
+        {
+            "label": "Upload AVR",
+            "type": "process",
+            "isBackground": true,
+            "command":"/usr/bin/make",
+            "args": ["asp_upload"],
+            "dependsOn": ["Erase AVR"],
+            "options": {
+                "cwd": "${workspaceRoot}/build"
+            },
+        },
+        {
+            "label": "Erase AVR",
+            "type": "process",
+            "isBackground": true,
+            "command":"/usr/bin/make",
+            "args": ["asp_erase"],
+            "dependsOn": ["Build AVR"],
+            "options": {
+                "cwd": "${workspaceRoot}/build"
+            },
+        },
+        {
+            "label": "Build AVR",
+            "type": "cppbuild",
+            "command": "/usr/bin/make",
+            "args": ["-j", "$(nproc)"],
+            "options": {
+                "cwd": "${workspaceRoot}/build"
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "dependsOrder": "sequence",
+            "dependsOn":["CMake Configure"],
+        },
+        {
+            "label": "CMake Configure",
+            "type": "process",
+            "isBackground": true,
+            "command":"${workspaceRoot}/.vscode/cmake.sh",
+            "args": ["${workspaceRoot}", "${armToolchainPath}"]
+        },
+        {
+            "label": "Clean all SAM",
+            "type": "process",
+            "isBackground": true,
+            "command":"rm -rf ${workspaceRoot}/build",
+        }
+    ],
+
+    "version": "2.0.0"
+}
