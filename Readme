@@ -1,0 +1,18 @@
+AVR MEMO Commands:
+------------------
+
+
+Read the fuses:
+sudo avrdude -c usbasp -p m328p -u -U hfuse:r:-:h
+
+Write DWEN (debug wire enable) // be careful your reset button will never work again.
+sudo avrdude -c usbasp -p m328p -u -U hfuse:w:0xda:m
+
+Erase atmega flash:
+sudo avrdude -c usbasp -p m328p -u -e
+
+Program atmega flash:
+sudo avrdude -c usbasp -p m328p -u -U flash:w:binary_filename.elf:i
+
+Debug using Atmel-ICE & avarice: (In my case it ends with many errors and segfault)
+sudo avarice -r -R -d -4 -P atmega328p -w :4334
