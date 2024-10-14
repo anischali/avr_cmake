@@ -75,7 +75,7 @@ static inline void i2c_master_setup(struct i2c_bus_t *bus, int32_t speed) {
 
     bus->TTWBR = twbr;
     bus->TTWSR |= ((BIT(TWPS1) | BIT(TWPS0)) & pres);
-};
+}
 
 /**
  * @brief i2c_master_transaction sends or receives a data on i2c bus.
