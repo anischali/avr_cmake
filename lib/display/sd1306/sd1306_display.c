@@ -1,5 +1,3 @@
-#ifndef __SD1306_CONTROLLER_H__
-#define __SD1306_CONTROLLER_H__
 #include "display.h"
 #include "console.h"
 
@@ -78,5 +76,3 @@ struct display_ops_t sd1306_display_ops = {
     .power_on = sd1306_display_power_on,
 	.set_brightness = sd1306_display_set_brightness,
 };
-
-#endif
