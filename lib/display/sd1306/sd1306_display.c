@@ -4,36 +4,22 @@
 #include "console.h"
 
 static uint8_t sd1306_initcode[] = {
-    0xAE, //display off
-	0x20, //Set Memory Addressing Mode   
-	0x10, //00,Horizontal Addressing Mode;01,Vertical Addressing Mode;10,Page Addressing Mode (RESET);11,Invalid
-	0xB0, //Set Page Start Address for Page Addressing Mode,0-7
-	0xC8, //Set COM Output Scan Direction
-	0x00, //---set low column address
-	0x10, //---set high column address
-	0x40, //--set start line address
-	0x81, //--set contrast control register
-	0xFF,
-	0xA1, //--set segment re-map 0 to 127
-	0xA6, //--set normal display
-	0xA8, //--set multiplex ratio(1 to 64)
-	0x3F, //
-	0xA4, //0xa4,Output follows RAM content;0xa5,Output ignores RAM content
-	0xD3, //-set display offset
-	0x00, //-not offset
-	0xD5, //--set display clock divide ratio/oscillator frequency
-	0xF0, //--set divide ratio
-	0xD9, //--set pre-charge period
-	0x22, //
-	0xDA, //--set com pins hardware configuration
-	0x12,
-	0xDB, //--set vcomh
-	0x20, //0x20,0.77xVcc
-	0x8D, //--set DC-DC enable
-	0x14, //
-	0xAF, //--turn on SSD1306 panel
-	0x29, // Scroll command
-    0x2E, // deactivate scroll
+    SSD1306_DISPLAYOFF, // display off
+    SSD1306_MEMORYMODE, 0x00, // Page Addressing mode
+    SSD1306_COMSCANDEC,             // Scan from 127 to 0 (Reverse scan)
+    SSD1306_SETSTARTLINE | 0x00,    // First line to start scanning from
+    SSD1306_SETCONTRAST, 0x7F,      // contast value to 0x7F according to datasheet
+    SSD1306_SEGREMAP | 0x01,        // Use reverse mapping. 0x00 - is normal mapping
+    SSD1306_NORMALDISPLAY,
+    SSD1306_SETMULTIPLEX, 63,       // Reset to default MUX. See datasheet
+    SSD1306_SETDISPLAYOFFSET, 0x00, // no offset
+    SSD1306_SETDISPLAYCLOCKDIV, 0x80,// set to default ratio/osc frequency
+    SSD1306_SETPRECHARGE, 0x22,     // switch precharge to 0x22 // 0xF1
+    SSD1306_SETCOMPINS, 0x12,       // set divide ratio
+    SSD1306_SETVCOMDETECT, 0x20,    // vcom deselect to 0x20 // 0x40
+    SSD1306_CHARGEPUMP, 0x14,       // Enable charge pump
+    SSD1306_DISPLAYALLON_RESUME,
+    SSD1306_DISPLAYON,
 };
 
 void sd1306_display_init(struct display_t *disp) {
@@ -44,42 +30,44 @@ void sd1306_display_init(struct display_t *disp) {
     
     bus->ops->setup(bus);
     
-	bus->ops->write(bus, &sd1306_initcode[0], sizeof(sd1306_initcode));
+	for (int i = 0; i < sizeof(sd1306_initcode); ++i)
+		bus->ops->write(bus, &sd1306_initcode[i], 1);
 }
 
 
 
 void sd1306_display_power_off(struct display_t *disp) {
     struct display_bus_t *bus = disp->bus;
-    uint8_t cmd = 0xAE;
+    uint8_t cmd[] = { 0xAE };
 
     if (!bus || !bus->ops)
         return;
-    
-    bus->ops->write(bus, &cmd, sizeof(cmd));
 
+    bus->ops->write(bus, &cmd[0], sizeof(cmd));
 }
 
 
 void sd1306_display_power_on(struct display_t *disp) {
     struct display_bus_t *bus = disp->bus;
-    uint8_t cmd = 0xAF;
-
-    if (!bus || !bus->ops)
-        return;
-    
-    bus->ops->write(bus, &cmd, sizeof(cmd));
-}
-
-
-void sd1306_display_set_brightness(struct display_t *disp, uint8_t value) {
-    struct display_bus_t *bus = disp->bus;
-    uint8_t cmd[2] = { 0x81, value };
+    uint8_t cmd[] = { 0xAF };
 
     if (!bus || !bus->ops)
         return;
     
     bus->ops->write(bus, &cmd[0], sizeof(cmd));
+}
+
+
+void sd1306_display_set_brightness(struct display_t *disp, uint8_t value) {
+    struct display_bus_t *bus = disp->bus;
+    uint8_t cmd[] = { 0x81 };
+
+    if (!bus || !bus->ops) {
+        return;
+	}
+
+	bus->ops->write(bus, &cmd[0], sizeof(cmd));
+	bus->ops->write(bus, &value, sizeof(value));
 }
 
 

@@ -13,7 +13,7 @@ int display_i2c_write(struct display_bus_t *disp, uint8_t *buffer, size_t len) {
     struct i2c_bus_t *i2c = (struct i2c_bus_t *)disp->bus;
     struct display_i2c_cfg_t *cfg = (struct display_i2c_cfg_t *)disp->context;
     
-    i2c_packet_fill(&pkt, TW_WRITE, cfg->address, 0, 0, buffer, len);
+    i2c_packet_fill(&pkt, TW_WRITE, cfg->address, 0, 1, buffer, len);
 
     return i2c_master_transaction(i2c, &pkt);
 }
