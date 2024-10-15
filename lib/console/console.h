@@ -6,7 +6,7 @@
 #define CONSOLE_BUFFER_LENGTH 32
 #endif
 static char console_buffer[CONSOLE_BUFFER_LENGTH];
-static void (*console_send_command)(const char *command);
+static void (*console_send_callback)(char *buf);
 static char *buf = console_buffer;
 
 void console_usart_recv(char c) {
@@ -18,8 +18,8 @@ void console_usart_recv(char c) {
         case '\n':
         case '\r':
             buf[i] = '\0';
-            if (i > 0 && console_send_command)
-                console_send_command(buf);
+            if (i > 0 && console_send_callback)
+                console_send_callback(buf);
 
             usart_printf("\n\r$ ");
             i = 0;    
@@ -47,7 +47,7 @@ void console_usart_recv(char c) {
 
 
 #define console_init(callback) \
-    console_send_command = callback; \
+    console_send_callback = callback; \
     usart_init(console_usart_recv)
 
 #endif
