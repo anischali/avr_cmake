@@ -41,7 +41,8 @@ struct display_bus_ops_t {
     void (*setup)(struct display_bus_t *bus);
     int (*write)(struct display_bus_t *bus, uint32_t addr, uint8_t *buffer, size_t size);
     int (*raw_write)(struct display_bus_t *bus, uint8_t *buffer, size_t size);
-    int (*read)(struct display_bus_t *bus, uint8_t *buffer, size_t size);
+    int (*read)(struct display_bus_t *bus, uint32_t addr, uint8_t *buffer, size_t size);
+    int (*raw_read)(struct display_bus_t *bus, uint8_t *buffer, size_t size);
 };
 
 struct display_bus_t {
