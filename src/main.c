@@ -138,6 +138,7 @@ ISR(BADISR_vect)
     sei();
 }
 
+/*
 ISR(PCINT0_vect)
 {
     pio_set(D, 5);
@@ -161,7 +162,7 @@ ISR(PCINT2_vect)
     pio_enable_irq(2, 22);
     sei();
 }
-
+*/
 DEFINE_MONOCHROME_SCREEN(mono_screen, 32, 128);
 DEFINE_I2C_DISPLAY(oled_sd1306, 32, 128, &mono_screen, I2C0, 0x3C, 400000, &i2c_display_ops, &sd1306_display_ops);
 
