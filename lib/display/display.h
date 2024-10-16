@@ -3,25 +3,21 @@
 #include <stdint.h>
 #include "list.h"
 #include "sd1306_display.h"
+#include "screen.h"
+
+extern struct display_bus_ops_t i2c_display_ops;
 
 struct display_t;
 struct display_zone_t;
 struct display_bus_t;
 
-struct point_t {
-    int x;
-    int y;
-};
-
 struct display_zone_t {
     struct point_t start;
     struct point_t end;
     struct display_t *display;
-    void *buffer;
-
+    
     void (*update)(struct display_zone_t *handle);
 };
-
 
 struct display_ops_t {
     void (*init)(struct display_t *disp);
@@ -30,6 +26,7 @@ struct display_ops_t {
     void (*power_on)(struct display_t *disp);
     void (*power_off)(struct display_t *disp);
     void (*set_brightness)(struct display_t *disp, uint8_t value);
+    void (*draw_screen)(struct display_t *disp, struct screen_t *screen);
 };
 
 struct display_i2c_cfg_t {
@@ -54,14 +51,13 @@ struct display_t {
     int width;
     void *buffer;
     void *context;
+    struct screen_t *screen;
     struct list_head zones;
     struct display_bus_t *bus;
     struct display_ops_t *ops;
 };
 
-extern struct display_bus_ops_t i2c_display_ops;
-
-#define DEFINE_I2C_DISPLAY(name, _height, _width, _bus_intf, _addr, _speed, _bus_ops, _disp_ops) \
+#define DEFINE_I2C_DISPLAY(name, _height, _width, _screen, _bus_intf, _addr, _speed, _bus_ops, _disp_ops) \
     static struct display_i2c_cfg_t name##_cfg = { \
         .address = _addr, \
         .speed = _speed, \
@@ -75,6 +71,7 @@ extern struct display_bus_ops_t i2c_display_ops;
         .height = _height, \
         .width = _width, \
         .bus = &name##_bus, \
+        .screen = _screen, \
         .ops = _disp_ops, \
     }
 
