@@ -49,5 +49,9 @@ static inline size_t ADDR_SIZE(uint32_t reg_addr)
 
 void i2c_master_setup(struct i2c_bus_t *bus, long speed);
 int i2c_master_transaction(struct i2c_bus_t *bus, struct i2c_packet_t *pkt);
+int i2c_master_start(struct i2c_bus_t *bus);
+void i2c_master_stop(struct i2c_bus_t *bus);
+int i2c_master_read_byte(struct i2c_bus_t *bus, uint8_t *byte, bool ack);
+int i2c_master_write_byte(struct i2c_bus_t *bus, uint8_t byte);
 
 #endif
