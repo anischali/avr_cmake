@@ -88,19 +88,19 @@ void sd1306_display_flip_vertical(struct display_t *disp, bool mode) {
 
 void sd1306_display_clear(struct display_t *disp) {
     struct display_bus_t *bus = disp->bus;
-    uint8_t cmd[] = { SSD1306_COLUMNADDR, 0, disp->width - 1, 0, SSD1306_PAGEADDR, (disp->height << 3) - 1 };
+    uint8_t cmd[] = { 0x0, SSD1306_COLUMNADDR, 0, disp->width - 1, SSD1306_PAGEADDR, 0, (disp->height << 3) - 1, 0x40 };
     int i, j;
-    uint8_t val = 0;
+    uint8_t val = 1;
 
     if (!bus || !bus->ops)
         return;
     
     for (i = 0; i < sizeof(cmd); ++i)
-        bus->ops->write(bus, 0, &cmd[i], 1);
-    
-    for (i = 0; i < disp->width; ++i) {
-        for (j = 0; j < disp->height; ++j) {
-            bus->ops->write(bus, 0, &val, sizeof(val));
+        bus->ops->raw_write(bus, &cmd[i], 1);
+
+    for (i = (disp->height >> 3); i > 0; --i) {
+        for (j = disp->width; j > 0; --j) {
+            bus->ops->raw_write(bus, &val, sizeof(val));
         }
     }
 }

@@ -11,6 +11,7 @@
 #include "console.h"
 #include "i2c_master.h"
 #include "display.h"
+#include "sd1306_display.h"
 
 
 #define min(a, b) ((a < b) ? a : b)
@@ -161,7 +162,8 @@ ISR(PCINT2_vect)
     sei();
 }
 
-DEFINE_I2C_DISPLAY(oled_sd1306, 32, 128, I2C0, 0x3C, 400000, &i2c_display_ops, &sd1306_display_ops);
+DEFINE_MONOCHROME_SCREEN(mono_screen, 32, 128);
+DEFINE_I2C_DISPLAY(oled_sd1306, 32, 128, &mono_screen, I2C0, 0x3C, 400000, &i2c_display_ops, &sd1306_display_ops);
 
 
 void i2c_command(char *cmd) {
@@ -217,8 +219,25 @@ void display_command(char *cmd) {
                     usart_printf("disp off\n\r");
                     return;
                 }
+                else if (!strncmp(p, "clear", 5)) {
+                    display_clear(&oled_sd1306);
+                    usart_printf("disp clear\n\r");
+                    return;
+                }
                 else if (!strncmp(p, "bright", 6)) {
                     ops = 3;
+                    continue;
+                }
+                else if (!strncmp(p, "hflip", 5)) {
+                    ops = 0;
+                    continue;
+                }
+                else if (!strncmp(p, "vflip", 5)) {
+                    ops = 1;
+                    continue;
+                }
+                else if (!strncmp(p, "invert", 6)) {
+                    ops = 2;
                     continue;
                 }
                 break;
@@ -230,6 +249,18 @@ void display_command(char *cmd) {
 
     switch (ops)
     {
+    case 0:
+        display_flip_horizontal(&oled_sd1306, val == 1);
+        usart_printf("disp hflip %d\n\r", val == 1);
+        break;
+    case 1:
+        display_flip_vertical(&oled_sd1306, val == 1);
+        usart_printf("disp vflip %d\n\r", val == 1);
+        break;
+    case 2:
+        display_invert(&oled_sd1306, val == 1);
+        usart_printf("disp invert %d\n\r", val == 1);
+        break;
     case 3:
         display_set_brightness(&oled_sd1306, val);
         usart_printf("disp set bright to %d\n\r", val);
