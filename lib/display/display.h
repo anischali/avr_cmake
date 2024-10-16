@@ -1,6 +1,7 @@
 #ifndef __DISPLAY_H__
 #define __DISPLAY_H__
 #include <stdint.h>
+#include <stdbool.h>
 #include "list.h"
 #include "sd1306_display.h"
 #include "screen.h"
@@ -21,10 +22,12 @@ struct display_zone_t {
 
 struct display_ops_t {
     void (*init)(struct display_t *disp);
-    void (*update)(struct display_t *disp);
     void (*clear)(struct display_t *disp);
     void (*power_on)(struct display_t *disp);
     void (*power_off)(struct display_t *disp);
+    void (*invert)(struct display_t *disp, bool mode);
+    void (*flip_horizontal)(struct display_t *disp, bool mode);
+    void (*flip_vertical)(struct display_t *disp, bool mode);
     void (*set_brightness)(struct display_t *disp, uint8_t value);
     void (*draw_screen)(struct display_t *disp, struct screen_t *screen);
 };
@@ -79,6 +82,10 @@ struct display_t {
 void display_init(struct display_t *disp);
 void display_power_off(struct display_t *disp);
 void display_power_on(struct display_t *disp);
+void display_clear(struct display_t *disp);
+void display_invert(struct display_t *disp, bool mode);
+void display_flip_vertical(struct display_t *disp, bool mode);
+void display_flip_horizontal(struct display_t *disp, bool mode);
 void display_set_brightness(struct display_t *disp, uint8_t value);
-
+void display_draw_screen(struct display_t *disp, struct screen_t *screen);
 #endif

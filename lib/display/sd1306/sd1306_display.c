@@ -55,6 +55,55 @@ void sd1306_display_power_on(struct display_t *disp) {
     bus->ops->write(bus, &cmd[0], sizeof(cmd));
 }
 
+void sd1306_display_invert(struct display_t *disp, bool mode) {
+    struct display_bus_t *bus = disp->bus;
+    uint8_t cmd[] = { mode ? SSD1306_INVERTDISPLAY : SSD1306_NORMALDISPLAY };
+
+    if (!bus || !bus->ops)
+        return;
+    
+    bus->ops->write(bus, &cmd[0], sizeof(cmd));
+}
+
+void sd1306_display_flip_horizontal(struct display_t *disp, bool mode) {
+    struct display_bus_t *bus = disp->bus;
+    uint8_t cmd[] = { SSD1306_SEGREMAP | (mode ? 0 : 1) };
+
+    if (!bus || !bus->ops)
+        return;
+    
+    bus->ops->write(bus, &cmd[0], sizeof(cmd));
+}
+
+void sd1306_display_flip_vertical(struct display_t *disp, bool mode) {
+    struct display_bus_t *bus = disp->bus;
+    uint8_t cmd[] = { mode ? SSD1306_COMSCANINC : SSD1306_COMSCANDEC };
+
+    if (!bus || !bus->ops)
+        return;
+    
+    bus->ops->write(bus, &cmd[0], sizeof(cmd));
+}
+
+
+void sd1306_display_clear(struct display_t *disp) {
+    struct display_bus_t *bus = disp->bus;
+    uint8_t cmd[] = { SSD1306_COLUMNADDR, 0, disp->width - 1, 0, SSD1306_PAGEADDR, (disp->height << 3) - 1 };
+    int i, j;
+    uint8_t val = 0;
+
+    if (!bus || !bus->ops)
+        return;
+    
+    for (i = 0; i < sizeof(cmd); ++i)
+        bus->ops->write(bus, &cmd[i], 1);
+    
+    for (i = 0; i < disp->width; ++i) {
+        for (j = 0; j < disp->height; ++j) {
+            bus->ops->write(bus, &val, sizeof(val));
+        }
+    }
+}
 
 void sd1306_display_set_brightness(struct display_t *disp, uint8_t value) {
     struct display_bus_t *bus = disp->bus;
@@ -68,6 +117,28 @@ void sd1306_display_set_brightness(struct display_t *disp, uint8_t value) {
 	bus->ops->write(bus, &value, sizeof(value));
 }
 
+void sd1306_display_draw_screen(struct display_t *disp, struct screen_t *screen) {
+    struct display_bus_t *bus = disp->bus;
+    uint8_t cmd[] = { SSD1306_COLUMNADDR, 0, disp->width - 1, 0, SSD1306_PAGEADDR, (disp->height << 3) - 1 };
+    int i, j;
+    uint8_t val = 0;
+    struct point_t p;
+
+    if (!bus || !bus->ops)
+        return;
+    
+    for (i = 0; i < sizeof(cmd); ++i)
+        bus->ops->write(bus, &cmd[i], 1);
+    
+    for (i = 0; i < disp->width; ++i) {
+        for (j = 0; j < disp->height; ++j) {
+            p.x = i;
+            p.y = j;
+            val = screen->get_pixel(screen, &p);
+            bus->ops->write(bus, &val, sizeof(val));
+        }
+    }
+}
 
 
 struct display_ops_t sd1306_display_ops = {
@@ -75,4 +146,9 @@ struct display_ops_t sd1306_display_ops = {
     .power_off = sd1306_display_power_off,
     .power_on = sd1306_display_power_on,
 	.set_brightness = sd1306_display_set_brightness,
+    .clear = sd1306_display_clear,
+    .invert = sd1306_display_invert,
+    .flip_horizontal = sd1306_display_flip_horizontal,
+    .flip_vertical = sd1306_display_flip_vertical,
+    .draw_screen = sd1306_display_draw_screen,
 };
