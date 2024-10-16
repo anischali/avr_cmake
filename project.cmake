@@ -10,6 +10,7 @@ set(AVR_PROJECT_SOURCES
     lib/console/console.c
     lib/i2c/i2c_master.c
     lib/display/display.c
+    lib/display/screen.c
     lib/display/display_i2c.c
     lib/display/sd1306/sd1306_display.c
 )

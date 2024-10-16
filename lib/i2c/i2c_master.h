@@ -42,6 +42,11 @@ struct i2c_bus_t {
 
 #define I2C0    ((struct i2c_bus_t *)(0xB8U))
 
+static inline size_t ADDR_SIZE(uint32_t reg_addr)
+{
+    return reg_addr <= 0xFF ? sizeof(uint8_t) : reg_addr <= 0xFFFF ? sizeof(uint16_t) : sizeof(uint32_t);
+}
+
 void i2c_master_setup(struct i2c_bus_t *bus, long speed);
 int i2c_master_transaction(struct i2c_bus_t *bus, struct i2c_packet_t *pkt);
 

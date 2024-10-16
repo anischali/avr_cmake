@@ -39,7 +39,8 @@ struct display_i2c_cfg_t {
 
 struct display_bus_ops_t {
     void (*setup)(struct display_bus_t *bus);
-    int (*write)(struct display_bus_t *bus, uint8_t *buffer, size_t size);
+    int (*write)(struct display_bus_t *bus, uint32_t addr, uint8_t *buffer, size_t size);
+    int (*raw_write)(struct display_bus_t *bus, uint8_t *buffer, size_t size);
     int (*read)(struct display_bus_t *bus, uint8_t *buffer, size_t size);
 };
 
