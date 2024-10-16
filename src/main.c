@@ -4,9 +4,14 @@
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include "usart.h"
 #include "adc.h"
 #include "pio.h"
+#include "console.h"
+#include "i2c_master.h"
+#include "display.h"
+
 
 #define min(a, b) ((a < b) ? a : b)
 #define max(a, b) ((a > b) ? a : b)
@@ -156,11 +161,108 @@ ISR(PCINT2_vect)
     sei();
 }
 
+DEFINE_I2C_DISPLAY(oled_sd1306, 32, 128, I2C0, 0x3C, 400000, &i2c_display_ops, &sd1306_display_ops);
+
+
+void i2c_command(char *cmd) {
+    char *save_ptr, *p;
+    int i, ret = 0;
+    uint16_t val = 0, subaddr = 0;
+    uint8_t slave = 0, dir = 0;
+    struct i2c_packet_t pkt;
+    for (i = 0, p = cmd; ; ++i, p = NULL) {
+        p = strtok_r(p, " ", &save_ptr);
+        if (!p)
+            break;
+
+        switch (i) {
+            case 1:
+                dir = !(strncmp(p, "read", 4)) ? TW_READ : TW_WRITE;
+                break;
+            case 2:
+                slave = strtol(p, NULL, 16);
+                break;
+            case 3:
+                subaddr = strtol(p, NULL, 16);
+                break;
+        }
+    }
+
+    i2c_packet_fill(&pkt, dir, slave, subaddr, sizeof(subaddr), (uint8_t *)&val, sizeof(val));
+    
+    ret = i2c_master_transaction(I2C0, &pkt);
+
+    usart_printf("op: %d slave: 0x%02x subaddr: 0x%02x (ret: %d) val: 0x%04x\n\r", dir, slave, subaddr, ret, val);
+}
+
+void display_command(char *cmd) {
+    char *save_ptr, *p;
+    int i, ops = 0;
+    uint8_t val = 0;
+
+    for (i = 0, p = cmd; ; ++i, p = NULL) {
+        p = strtok_r(p, " ", &save_ptr);
+        if (!p)
+            break;
+
+        switch (i) {
+            case 1:
+                if (!strncmp(p, "on", 2)) {
+                    display_power_on(&oled_sd1306);
+                    usart_printf("disp on\n\r");
+                    return;
+                }
+                else if (!strncmp(p, "off", 3)) {
+                    display_power_off(&oled_sd1306);
+                    usart_printf("disp off\n\r");
+                    return;
+                }
+                else if (!strncmp(p, "bright", 6)) {
+                    ops = 3;
+                    continue;
+                }
+                break;
+            case 2:
+                val = strtol(p, NULL, 10);
+                break;
+        }
+    }
+
+    switch (ops)
+    {
+    case 3:
+        display_set_brightness(&oled_sd1306, val);
+        usart_printf("disp set bright to %d\n\r", val);
+        break;
+    
+    default:
+        break;
+    }
+}
+
+void on_console_command(char *cmd) {
+    
+
+    usart_printf("\n\r");
+    display_command(cmd);
+    
+}
+
+
+
+
+
 int main() {
-    uint16_t p, val = 0;
-    usart_init(pwm_usart_recv);
-    test_pwm();
+    console_init(on_console_command);
+    display_init(&oled_sd1306);
+
+    __delay_ms(5000);
+
+    display_power_off(&oled_sd1306);
+
     sei();
+
+    /*test_pwm();
 
     adc_setup(ADC_AREF_PIN, ADC_PRESCALER_128);
     while (1)
@@ -169,19 +271,22 @@ int main() {
         if (p != val)
         {
             val = p;
-            usart_printf("Potontiometer value is: %d\n\r", val);
         }
-        /*
-        if (OCR2A != duty)
-        {
-            duty = max(120, min(duty, 149));
-            OCR2A = OCR2B = duty;
-        }*/
+        //if (OCR2A != duty)
+        //{
+        //    duty = max(120, min(duty, 149));
+        //    OCR2A = OCR2B = duty;
+        //}
 
         //rf_read();
         
         //rf_write("hello world!\n\r");
-    }
+    }*/
+
+
+  
+
+    while(1) {}
 
     return 0;
 }

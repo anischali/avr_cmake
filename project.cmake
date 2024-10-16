@@ -6,17 +6,27 @@ set(SERIAL_CONSOLE_BAUDRATE 38400)
 
 set(AVR_PROJECT_SOURCES
     src/main.c
-    lib/usart/usart.h
     lib/usart/usart.c
-    lib/pio/pio.h
-    lib/adc/adc.h
+    lib/console/console.c
+    lib/i2c/i2c_master.c
+    lib/display/display.c
+    lib/display/display_i2c.c
+    lib/display/sd1306/sd1306_display.c
 )
 
 set(AVR_PROJECT_HEADERS_DIR
     lib/usart/
     lib/pio/
     lib/adc/
+    lib/i2c/
+    lib/common/
+    lib/console/
+    lib/list/
+    lib/display/
+    lib/display/sd1306/
 )
 
 
-set(AVR_EXTRA_DEFINITIONS)
+set(AVR_EXTRA_DEFINITIONS
+    -D__AVR_ATmega328P__=1
+)
