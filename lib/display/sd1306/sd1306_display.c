@@ -1,5 +1,6 @@
 #include "display.h"
 #include "console.h"
+#include <string.h>
 
 static uint8_t sd1306_initcode[] = {
     SSD1306_DISPLAYOFF, // display off

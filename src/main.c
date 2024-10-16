@@ -288,7 +288,7 @@ int main() {
     console_init(on_console_command);
     display_init(&oled_sd1306);
 
-    __delay_ms(5000);
+    delay_ms(5000);
 
     display_power_off(&oled_sd1306);
 
