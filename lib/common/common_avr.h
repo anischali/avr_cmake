@@ -5,10 +5,9 @@
 #define BIT(x) (1 << x)
 
 
-static inline void __delay_ms(long ms) {
-    long delay = ((ms * 1000) / (long)F_CPU);
-
-    while (--delay > 0);
+static inline void delay_ms(long ms) {
+    ms *= 1000 / F_CPU;
+    while(--ms > 0);
 }
 
 #endif
