@@ -18,7 +18,12 @@ void display_power_off(struct display_t *disp) {
     disp->ops->power_off(disp);
 }
 
-
+void display_reset(struct display_t *disp) {
+    if (!disp || !disp->ops || !disp->ops->reset)
+        return;
+    
+    disp->ops->reset(disp);
+}
 
 
 void display_power_on(struct display_t *disp) {

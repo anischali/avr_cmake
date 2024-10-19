@@ -25,6 +25,7 @@ struct display_ops_t {
     void (*clear)(struct display_t *disp);
     void (*power_on)(struct display_t *disp);
     void (*power_off)(struct display_t *disp);
+    void (*reset)(struct display_t *disp);
     void (*invert)(struct display_t *disp, bool mode);
     void (*flip_horizontal)(struct display_t *disp, bool mode);
     void (*flip_vertical)(struct display_t *disp, bool mode);
