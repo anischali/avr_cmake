@@ -6,7 +6,7 @@
 #include <avr/io.h>
 #include <util/twi.h>
 #include <avr/interrupt.h>
-#include "common_avr.h"
+#include "common.h"
 
 typedef union {
     uint32_t subaddr;
