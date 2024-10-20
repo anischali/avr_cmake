@@ -1,25 +1,43 @@
 #include "display.h"
 #include "console.h"
+#include "common.h"
 #include <string.h>
 
 static uint8_t sd1306_initcode[] = {
     SSD1306_DISPLAYOFF, // display off
-    SSD1306_MEMORYMODE, 0x00, // Page Addressing mode
-    SSD1306_COMSCANDEC,             // Scan from 127 to 0 (Reverse scan)
-    SSD1306_SETSTARTLINE | 0x00,    // First line to start scanning from
-    SSD1306_SETCONTRAST, 0x7F,      // contast value to 0x7F according to datasheet
-    SSD1306_SEGREMAP | 0x01,        // Use reverse mapping. 0x00 - is normal mapping
-    SSD1306_NORMALDISPLAY,
-    SSD1306_SETMULTIPLEX, 63,       // Reset to default MUX. See datasheet
-    SSD1306_SETDISPLAYOFFSET, 0x00, // no offset
     SSD1306_SETDISPLAYCLOCKDIV, 0x80,// set to default ratio/osc frequency
+    SSD1306_SETDISPLAYOFFSET, 0x00, // no offset
+    SSD1306_SETSTARTLINE | 0x00,    // First line to start scanning from
+    SSD1306_CHARGEPUMP, 0x14,       // Enable charge pump (0x10|0x14)
+    SSD1306_MEMORYMODE, 0x00,       // Horizontal addressing mode
+    SSD1306_SEGREMAP | 0x01,        // Use reverse mapping. 0x00 - is normal mapping
+    SSD1306_COMSCANDEC,             // Scan from 127 to 0 (Reverse scan)
+    SSD1306_SETCOMPINS, 0x02,       // set divide ratio
+    SSD1306_SETCONTRAST, 0x8F,      // contast value to 0x7F according to datasheet
+    SSD1306_NORMALDISPLAY,
     SSD1306_SETPRECHARGE, 0x22,     // switch precharge to 0x22 // 0xF1
-    SSD1306_SETCOMPINS, 0x12,       // set divide ratio
-    SSD1306_SETVCOMDETECT, 0x20,    // vcom deselect to 0x20 // 0x40
-    SSD1306_CHARGEPUMP, 0x14,       // Enable charge pump
+    SSD1306_SETVCOMDETECT, 0x40,    // vcom deselect to 0x20 // 0x40
     SSD1306_DISPLAYALLON_RESUME,
     SSD1306_DISPLAYON,
 };
+
+static inline void sd1306_set_page(struct display_bus_t *bus, uint8_t begin, uint8_t end) {
+    int i;
+    uint8_t cmd[] = { SSD1306_PAGEADDR, begin, end };
+
+    for (i = 0; i < sizeof(cmd); ++i) {
+        bus->ops->write(bus, 0x0, &cmd[i], 1);
+    }
+}
+
+static inline void sd1306_set_col(struct display_bus_t *bus, uint8_t begin, uint8_t end) {
+    int i;
+    uint8_t cmd[] = { SSD1306_COLUMNADDR, begin, end };
+
+    for (i = 0; i < sizeof(cmd); ++i) {
+        bus->ops->write(bus, 0x0, &cmd[i], 1);
+    }
+}
 
 void sd1306_display_init(struct display_t *disp) {
     struct display_bus_t *bus = disp->bus;
@@ -91,19 +109,18 @@ void sd1306_display_clear(struct display_t *disp) {
     struct display_bus_t *bus = disp->bus;
     int i, cnt;
     uint8_t *ptr = disp->screen->get_buffer(disp->screen);
-    uint8_t cmd[] = {0x0, SSD1306_COLUMNADDR, 0, disp->width, SSD1306_PAGEADDR, 0, (disp->height >> 3) };
 
     if (!bus || !bus->ops)
         return;
 
-    for (i = 0; i < sizeof(cmd); ++i) {
-        bus->ops->raw_write(bus, &cmd[i], 1);
-    }
+    sd1306_set_col(bus, 0, disp->width - 1);
+    sd1306_set_page(bus, 0, (disp->height >> 3) - 1);
 
     cnt = (disp->height >> 3) * disp->width;
     memset(ptr, 0x0, cnt);
+
     for (i = 0; i < cnt; ++i) {
-        bus->ops->raw_write(bus, &ptr[i], 1);
+        bus->ops->write(bus, 0x40, &ptr[i], 1);
     }
 }
 

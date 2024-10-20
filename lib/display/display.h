@@ -53,8 +53,8 @@ struct display_bus_t {
 };
 
 struct display_t {
-    int height;
     int width;
+    int height;
     void *buffer;
     void *context;
     struct screen_t *screen;
@@ -63,7 +63,7 @@ struct display_t {
     struct display_ops_t *ops;
 };
 
-#define DEFINE_I2C_DISPLAY(name, _height, _width, _screen, _bus_intf, _addr, _speed, _bus_ops, _disp_ops) \
+#define DEFINE_I2C_DISPLAY(name, _width, _height, _screen, _bus_intf, _addr, _speed, _bus_ops, _disp_ops) \
     static struct display_i2c_cfg_t name##_cfg = { \
         .address = _addr, \
         .speed = _speed, \
@@ -74,8 +74,8 @@ struct display_t {
         .ops = _bus_ops, \
     }; \
     static struct display_t name = { \
-        .height = _height, \
         .width = _width, \
+        .height = _height, \
         .bus = &name##_bus, \
         .screen = _screen, \
         .ops = _disp_ops, \

@@ -9,8 +9,8 @@ struct point_t {
 };
 
 struct screen_t {
-    int height;
     int width;
+    int height;
     uint8_t *pixels;
     int (*get_pixel)(struct screen_t *screen, struct point_t *p);
     int (*get_pixels)(struct screen_t *screen, struct point_t *begin, struct point_t *end);
@@ -21,11 +21,11 @@ struct screen_t {
 int monochrome_screen_get_pixel(struct screen_t *screen, struct point_t *p);
 uint8_t * monochrome_screen_get_buffer(struct screen_t *screen);
 
-#define DEFINE_MONOCHROME_SCREEN(name, _height , _width) \
-    static uint8_t name##_pixels_buf[(_height *  _width / 8)]; \
+#define DEFINE_MONOCHROME_SCREEN(name , _width, _height) \
+    static uint8_t name##_pixels_buf[(_width / 8) * _height]; \
     static struct screen_t name = { \
-        .height = _height, \
         .width = _width, \
+        .height = _height, \
         .pixels = name##_pixels_buf, \
         .get_pixel = monochrome_screen_get_pixel, \
         .get_buffer = monochrome_screen_get_buffer, \
