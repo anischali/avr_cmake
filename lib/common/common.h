@@ -10,4 +10,8 @@ static inline void delay_ms(long ms) {
     while(--ms > 0);
 }
 
+
+#define __assert(cond, ret_code) \
+    if (!(cond)) return ret_code;
+
 #endif
