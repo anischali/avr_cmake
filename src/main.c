@@ -163,8 +163,8 @@ ISR(PCINT2_vect)
     sei();
 }
 */
-DEFINE_MONOCHROME_SCREEN(mono_screen, 32, 128);
-DEFINE_I2C_DISPLAY(oled_sd1306, 32, 128, &mono_screen, I2C0, 0x3C, 400000, &i2c_display_ops, &sd1306_display_ops);
+DEFINE_MONOCHROME_SCREEN(mono_screen, 128, 32);
+DEFINE_I2C_DISPLAY(oled_sd1306, 128, 32, &mono_screen, I2C0, 0x3C, 400000, &i2c_display_ops, &sd1306_display_ops);
 
 
 void i2c_command(char *cmd) {
