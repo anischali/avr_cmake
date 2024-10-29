@@ -4,7 +4,7 @@
 #include <string.h>
 
 static uint8_t sd1306_initcode[] = {
-    SSD1306_DISPLAYOFF, // display off
+    SSD1306_SET_DISPLAY | 0, // display off
     SSD1306_SETDISPLAYCLOCKDIV, 0x80,// set to default ratio/osc frequency
     SSD1306_SETDISPLAYOFFSET, 0x00, // no offset
     SSD1306_SETSTARTLINE | 0x00,    // First line to start scanning from
@@ -17,8 +17,8 @@ static uint8_t sd1306_initcode[] = {
     SSD1306_NORMALDISPLAY,
     SSD1306_SETPRECHARGE, 0x22,     // switch precharge to 0x22 // 0xF1
     SSD1306_SETVCOMDETECT, 0x40,    // vcom deselect to 0x20 // 0x40
+    SSD1306_SET_DISPLAY | 1,
     SSD1306_DISPLAYALLON_RESUME,
-    SSD1306_DISPLAYON,
 };
 
 static inline void sd1306_set_page(struct display_bus_t *bus, uint8_t begin, uint8_t end) {
