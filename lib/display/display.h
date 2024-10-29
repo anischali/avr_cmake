@@ -30,7 +30,7 @@ struct display_ops_t {
     void (*flip_horizontal)(struct display_t *disp, bool mode);
     void (*flip_vertical)(struct display_t *disp, bool mode);
     void (*set_brightness)(struct display_t *disp, uint8_t value);
-    void (*draw_screen)(struct display_t *disp, struct screen_t *screen);
+    void (*draw_screen)(struct display_t *disp);
 };
 
 struct display_i2c_cfg_t {
@@ -90,5 +90,5 @@ void display_invert(struct display_t *disp, bool mode);
 void display_flip_vertical(struct display_t *disp, bool mode);
 void display_flip_horizontal(struct display_t *disp, bool mode);
 void display_set_brightness(struct display_t *disp, uint8_t value);
-void display_draw_screen(struct display_t *disp, struct screen_t *screen);
+void display_draw_screen(struct display_t *disp);
 #endif

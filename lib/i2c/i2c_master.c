@@ -105,6 +105,8 @@ write:
 
     } while(len-- > 0);
     
+    goto stop;
+
 read:
     b = &pkt->buffer[0];
     len = pkt->length;
@@ -117,6 +119,7 @@ read:
         b++;
     }
 
+stop:
     i2c_master_stop(bus);
 
     return 0;

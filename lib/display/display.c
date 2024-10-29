@@ -72,9 +72,9 @@ void display_set_brightness(struct display_t *disp, uint8_t value) {
     disp->ops->set_brightness(disp, value);
 }
 
-void display_draw_screen(struct display_t *disp, struct screen_t *screen) {
+void display_draw_screen(struct display_t *disp) {
     if (!disp || !disp->ops || !disp->ops->draw_screen)
         return;
     
-    disp->ops->draw_screen(disp, screen);
+    disp->ops->draw_screen(disp);
 }
