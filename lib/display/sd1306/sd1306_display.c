@@ -136,15 +136,8 @@ void sd1306_display_flip_vertical(struct display_t *disp, bool mode) {
 }
 
 void sd1306_display_clear_screen(struct display_t *disp) {
-    struct display_bus_t *bus = disp->bus;
-    uint8_t *ptr = disp->screen->get_buffer(disp->screen);
-    int cnt;
 
-    if (!bus || !bus->ops)
-        return;
-
-    cnt = (disp->height >> 3) * disp->width;
-    memset(ptr, 0x0, cnt);
+    screen_clear(disp->screen);
 
     disp->ops->draw_screen(disp);
 }
@@ -164,7 +157,7 @@ void sd1306_display_set_brightness(struct display_t *disp, uint8_t value) {
 void sd1306_display_draw_screen(struct display_t *disp) {
     struct display_bus_t *bus = disp->bus;
     int cnt;
-    uint8_t *ptr = disp->screen->get_buffer(disp->screen);
+    uint8_t *ptr = screen_get_buffer(disp->screen);
     uint8_t cmds[] = { SSD1306_PAGEADDR, 0, 0xff, SSD1306_COLUMNADDR, 0, disp->width - 1 };
 
     if (!bus || !bus->ops)

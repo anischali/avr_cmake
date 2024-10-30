@@ -9,16 +9,7 @@
 extern struct display_bus_ops_t i2c_display_ops;
 
 struct display_t;
-struct display_zone_t;
 struct display_bus_t;
-
-struct display_zone_t {
-    struct point_t start;
-    struct point_t end;
-    struct display_t *display;
-    
-    void (*update)(struct display_zone_t *handle);
-};
 
 struct display_ops_t {
     void (*init)(struct display_t *disp);

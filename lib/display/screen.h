@@ -3,32 +3,48 @@
 #define __SCREEN_H_
 #include <stdint.h>
 
+struct screen_t;
 struct point_t {
     int x;
     int y;
+};
+
+struct screen_ops_t {
+    int (*get_pixel)(struct screen_t *screen, struct point_t *p);
+    void (*set_pixel)(struct screen_t *screen, struct point_t *p, int pixel);
+    void (*fill)(struct screen_t *screen, int pixel);
 };
 
 struct screen_t {
     int width;
     int height;
     uint8_t *pixels;
-    int (*get_pixel)(struct screen_t *screen, struct point_t *p);
-    int (*get_pixels)(struct screen_t *screen, struct point_t *begin, struct point_t *end);
-    uint8_t * (*get_buffer)(struct screen_t *screen);
+    struct screen_ops_t *ops;
 };
 
-
 int monochrome_screen_get_pixel(struct screen_t *screen, struct point_t *p);
-uint8_t * monochrome_screen_get_buffer(struct screen_t *screen);
+void monochrome_screen_set_pixel(struct screen_t *screen, struct point_t *p, int pixel);
+void monochrome_screen_fill(struct screen_t *screen, int pixel);
 
 #define DEFINE_MONOCHROME_SCREEN(name , _width, _height) \
+    static struct screen_ops_t name##_ops = { \
+        .get_pixel = monochrome_screen_get_pixel, \
+        .set_pixel = monochrome_screen_set_pixel, \
+        .fill = monochrome_screen_fill, \
+    }; \
     static uint8_t name##_pixels_buf[(_width / 8) * _height]; \
     static struct screen_t name = { \
         .width = _width, \
         .height = _height, \
         .pixels = name##_pixels_buf, \
-        .get_pixel = monochrome_screen_get_pixel, \
-        .get_buffer = monochrome_screen_get_buffer, \
+        .ops =  &name##_ops, \
     }
+
+
+uint8_t *screen_get_buffer(struct screen_t *screen);
+int screen_get_pixel(struct screen_t *screen, struct point_t *p);
+void screen_set_pixel(struct screen_t *screen, struct point_t *p, int pixel);
+void screen_fill(struct screen_t *screen, int pixel);
+void screen_clear(struct screen_t *screen);
 
 #endif
