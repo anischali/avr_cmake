@@ -78,8 +78,9 @@ void sd1306_display_init(struct display_t *disp) {
         initcode_len = sizeof(sd1306_128_64_initcode);
     }
 	
-    for (int i = 0; i < initcode_len; ++i)
+    for (int i = 0; i < initcode_len; ++i) {
 		bus->ops->write(bus, 0, &initcode[i], 1);
+    }
 }
 
 
@@ -158,16 +159,16 @@ void sd1306_display_draw_screen(struct display_t *disp) {
     struct display_bus_t *bus = disp->bus;
     int cnt;
     uint8_t *ptr = screen_get_buffer(disp->screen);
-    uint8_t cmds[] = { SSD1306_PAGEADDR, 0, 0xff, SSD1306_COLUMNADDR, 0, disp->width - 1 };
+
 
     if (!bus || !bus->ops)
         return;
 
-    bus->ops->write(bus, 0x0, &cmds[0], sizeof(cmds) - 1);
-    bus->ops->write(bus, 0x0, &cmds[sizeof(cmds) - 1], 1);
+    sd1306_set_page(bus, 0, disp->height >> 3);
+    sd1306_set_col(bus, 0, 0xff);
 
     cnt = (disp->height >> 3) * disp->width;
-
+    
     bus->ops->write(bus, 0x40, &ptr[0], cnt);
 }
 
