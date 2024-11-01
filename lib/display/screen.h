@@ -9,10 +9,18 @@ struct point_t {
     int y;
 };
 
+struct ebitmap_t {
+    int width;
+    int height;
+    int bits_per_pixel;
+    int *pixels_array;
+};
+
 struct screen_ops_t {
     int (*get_pixel)(struct screen_t *screen, struct point_t *p);
     void (*set_pixel)(struct screen_t *screen, struct point_t *p, int pixel);
     void (*fill)(struct screen_t *screen, int pixel);
+    void (*draw_bitmap)(struct screen_t *screen, struct ebitmap_t *bitmap, struct point_t *offset);
 };
 
 struct screen_t {
@@ -25,12 +33,14 @@ struct screen_t {
 int monochrome_screen_get_pixel(struct screen_t *screen, struct point_t *p);
 void monochrome_screen_set_pixel(struct screen_t *screen, struct point_t *p, int pixel);
 void monochrome_screen_fill(struct screen_t *screen, int pixel);
+void monochrome_screen_draw_bitmap(struct screen_t *screen, struct ebitmap_t *bitmap, struct point_t *offset);
 
 #define DEFINE_MONOCHROME_SCREEN(name , _width, _height) \
     static struct screen_ops_t name##_ops = { \
         .get_pixel = monochrome_screen_get_pixel, \
         .set_pixel = monochrome_screen_set_pixel, \
         .fill = monochrome_screen_fill, \
+        .draw_bitmap = monochrome_screen_draw_bitmap, \
     }; \
     static uint8_t name##_pixels_buf[(_width / 8) * _height]; \
     static struct screen_t name = { \
@@ -46,5 +56,6 @@ int screen_get_pixel(struct screen_t *screen, struct point_t *p);
 void screen_set_pixel(struct screen_t *screen, struct point_t *p, int pixel);
 void screen_fill(struct screen_t *screen, int pixel);
 void screen_clear(struct screen_t *screen);
+void screen_draw_bitmap(struct screen_t *screen, struct ebitmap_t *bitmap, struct point_t *offset);
 
 #endif

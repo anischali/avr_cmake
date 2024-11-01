@@ -36,6 +36,16 @@ void monochrome_screen_fill(struct screen_t *screen, int pixel) {
     memset(screen->pixels, val, cnt);
 }
 
+void monochrome_screen_draw_bitmap(struct screen_t *screen, struct ebitmap_t *bitmap, struct point_t *offset) {
+    struct point_t lim = { 
+        .x = __min(offset->x + bitmap->width, screen->width),
+        .y = __min(offset->y + bitmap->height, screen->height),
+    };
+
+    for (int y = offset->y, p = 0; y < lim.y && p < bitmap->height; ++y, ++p) {
+        memcpy(&screen->pixels[y / 8 * screen->width + offset->x], &bitmap->pixels_array[p], 1);
+    }
+}
 
 uint8_t * screen_get_buffer(struct screen_t *screen) {
     return screen->pixels;
@@ -68,9 +78,16 @@ void screen_fill(struct screen_t *screen, int pixel) {
 
 void screen_clear(struct screen_t *screen) {
 
-   if (!screen->ops || !screen->ops->fill)
+    if (!screen->ops || !screen->ops->fill)
         return;
 
     screen->ops->fill(screen, 0);
 }
 
+
+void screen_draw_bitmap(struct screen_t *screen, struct ebitmap_t *bitmap, struct point_t *offset) {
+    if (!screen->ops || !screen->ops->draw_bitmap)
+        return;
+
+    screen->ops->draw_bitmap(screen, bitmap, offset);
+}
