@@ -18,4 +18,11 @@ static inline void delay_ms(long ms) {
 #define __max(x, y) ((x > y) ? x : y)
 #define __min(x, y) ((x < y) ? x : y)
 
+
+#if !defined(ARRAY_SIZE)
+#define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
+#endif
+
+#define xconst __attribute__ ((used, section(".text"))) 
+
 #endif
