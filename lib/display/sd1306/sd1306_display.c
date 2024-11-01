@@ -25,7 +25,6 @@ static uint8_t sd1306_128_32_initcode[] = {
 static uint8_t sd1306_128_64_initcode[] = {
     SSD1306_SET_DISPLAY | 0, // display off
     SSD1306_MEMORYMODE, 0x0, // Page Addressing mode
-    SSD1306_COMSCANDEC,             // Scan from 127 to 0 (Reverse scan)
     SSD1306_SETSTARTLINE | 0x00,    // First line to start scanning from
     SSD1306_SETCONTRAST, 0x7F,      // contast value to 0x7F according to datasheet
     SSD1306_SEGREMAP | 0x01,        // Use reverse mapping. 0x00 - is normal mapping
@@ -40,24 +39,6 @@ static uint8_t sd1306_128_64_initcode[] = {
     SSD1306_DISPLAYALLON_RESUME,
     SSD1306_SET_DISPLAY | 1,
 };
-
-static inline void sd1306_set_page(struct display_bus_t *bus, uint8_t begin, uint8_t end) {
-    int i;
-    uint8_t cmd[] = { SSD1306_PAGEADDR, begin, end };
-
-    for (i = 0; i < sizeof(cmd); ++i) {
-        bus->ops->write(bus, 0x0, &cmd[i], 1);
-    }
-}
-
-static inline void sd1306_set_col(struct display_bus_t *bus, uint8_t begin, uint8_t end) {
-    int i;
-    uint8_t cmd[] = { SSD1306_COLUMNADDR, begin, end };
-
-    for (i = 0; i < sizeof(cmd); ++i) {
-        bus->ops->write(bus, 0x0, &cmd[i], 1);
-    }
-}
 
 void sd1306_display_init(struct display_t *disp) {
     struct display_bus_t *bus = disp->bus;
@@ -159,13 +140,13 @@ void sd1306_display_draw_screen(struct display_t *disp) {
     struct display_bus_t *bus = disp->bus;
     int cnt;
     uint8_t *ptr = screen_get_buffer(disp->screen);
-
-
+    uint8_t cmds[] = { SSD1306_PAGEADDR, 0, 0xff, SSD1306_COLUMNADDR, 0, disp->width - 1 };
+    
     if (!bus || !bus->ops)
         return;
 
-    sd1306_set_page(bus, 0, disp->height >> 3);
-    sd1306_set_col(bus, 0, 0xff);
+    bus->ops->write(bus, 0x0, &cmds[0], sizeof(cmds) - 1);
+    bus->ops->write(bus, 0x0, &cmds[sizeof(cmds) - 1], 1);
 
     cnt = (disp->height >> 3) * disp->width;
     
