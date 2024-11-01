@@ -31,7 +31,7 @@ void monochrome_screen_set_pixel(struct screen_t *screen, struct point_t *p, int
 
 
 void monochrome_screen_fill(struct screen_t *screen, int pixel) {
-    int cnt = ((screen->height >> 3) * screen->width);
+    int cnt = (screen->height >> 3) * screen->width;
     uint8_t val = pixel ? 255 : 0;
     memset(screen->pixels, val, cnt);
 }

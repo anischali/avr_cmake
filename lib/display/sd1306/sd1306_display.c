@@ -139,7 +139,7 @@ void sd1306_display_set_brightness(struct display_t *disp, uint8_t value) {
 void sd1306_display_draw_screen(struct display_t *disp) {
     struct display_bus_t *bus = disp->bus;
     int cnt;
-    uint8_t *ptr = screen_get_buffer(disp->screen);
+    uint8_t *pixels = screen_get_buffer(disp->screen);
     uint8_t cmds[] = { SSD1306_PAGEADDR, 0, 0xff, SSD1306_COLUMNADDR, 0, disp->width - 1 };
     
     if (!bus || !bus->ops)
@@ -149,8 +149,7 @@ void sd1306_display_draw_screen(struct display_t *disp) {
     bus->ops->write(bus, 0x0, &cmds[sizeof(cmds) - 1], 1);
 
     cnt = (disp->height >> 3) * disp->width;
-    
-    bus->ops->write(bus, 0x40, &ptr[0], cnt);
+    bus->ops->write(bus, 0x40, &pixels[0], cnt);
 }
 
 

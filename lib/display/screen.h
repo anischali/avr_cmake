@@ -2,6 +2,8 @@
 #ifndef __SCREEN_H_
 #define __SCREEN_H_
 #include <stdint.h>
+#include "common.h"
+
 
 struct screen_t;
 struct point_t {
@@ -42,7 +44,7 @@ void monochrome_screen_draw_bitmap(struct screen_t *screen, struct ebitmap_t *bi
         .fill = monochrome_screen_fill, \
         .draw_bitmap = monochrome_screen_draw_bitmap, \
     }; \
-    static uint8_t name##_pixels_buf[_width * _height / 8]; \
+    static uint8_t name##_pixels_buf[_width * (_height >> 3)]; \
     static struct screen_t name = { \
         .width = _width, \
         .height = _height, \
