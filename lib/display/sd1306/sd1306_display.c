@@ -14,7 +14,7 @@ struct sd1306_cmd_t {
     .cmd = (const uint8_t[]){__VA_ARGS__}, \
 }
 
-static const struct sd1306_cmd_t xconst sd1306_128_32_initcode[] = {
+static const struct sd1306_cmd_t sd1306_128_32_initcode[] = {
     SD1306_CMD(SSD1306_SET_DISPLAY | 0), // display off
     SD1306_CMD(SSD1306_MEMORYMODE, 0x00), // Page Addressing mode
     SD1306_CMD(SSD1306_COMSCANDEC),             // Scan from 127 to 0 (Reverse scan)
@@ -33,7 +33,7 @@ static const struct sd1306_cmd_t xconst sd1306_128_32_initcode[] = {
     SD1306_CMD(SSD1306_SET_DISPLAY | 1),
 };
 
-static const struct sd1306_cmd_t xconst sd1306_128_64_initcode[] = {
+static const struct sd1306_cmd_t sd1306_128_64_initcode[] = {
     SD1306_CMD(SSD1306_SET_DISPLAY | 0), // display off
     SD1306_CMD(SSD1306_MEMORYMODE, 0x0), // Page Addressing mode
     SD1306_CMD(SSD1306_SETSTARTLINE | 0x00),    // First line to start scanning from
