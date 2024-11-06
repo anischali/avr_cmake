@@ -6,49 +6,54 @@
 
 struct sd1306_cmd_t {
     int length;
-    uint8_t cmd[6];
+    const uint8_t *cmd;
 };
 
-static struct sd1306_cmd_t xconst sd1306_128_32_initcode[] = {
-    { .length = 1, .cmd = { SSD1306_SET_DISPLAY | 0} }, // display off
-    { .length = 2, .cmd = { SSD1306_MEMORYMODE, 0x00} }, // Page Addressing mode
-    { .length = 1, .cmd = { SSD1306_COMSCANDEC} },             // Scan from 127 to 0 (Reverse scan)
-    { .length = 1, .cmd = { SSD1306_SETSTARTLINE | 0x00} },    // First line to start scanning from
-    { .length = 2, .cmd = { SSD1306_SETCONTRAST, 0x7F} },      // contast value to 0x7F according to datasheet
-    { .length = 1, .cmd = { SSD1306_SEGREMAP | 0x01} },        // Use reverse mapping. 0x00 - is normal mapping
-    { .length = 1, .cmd = { SSD1306_NORMALDISPLAY} },
-    { .length = 2, .cmd = { SSD1306_SETMULTIPLEX, 63} },       // Reset to default MUX. See datasheet
-    { .length = 2, .cmd = { SSD1306_SETDISPLAYOFFSET, 0x00} }, // no offset
-    { .length = 2, .cmd = { SSD1306_SETDISPLAYCLOCKDIV, 0x80} },// set to default ratio/osc frequency
-    { .length = 2, .cmd = { SSD1306_SETPRECHARGE, 0x22} },     // switch precharge to 0x22 // 0xF1
-    { .length = 2, .cmd = { SSD1306_SETCOMPINS, 0x12} },       // set divide ratio
-    { .length = 2, .cmd = { SSD1306_SETVCOMDETECT, 0x20} },    // vcom deselect to 0x20 // 0x40
-    { .length = 2, .cmd = { SSD1306_CHARGEPUMP, 0x14} },       // Enable charge pump
-    { .length = 1, .cmd = { SSD1306_DISPLAYALLON_RESUME} },
-    { .length = 1, .cmd = { SSD1306_SET_DISPLAY | 1} },
+#define SD1306_CMD(...) { \
+    .length = sizeof((const uint8_t[]){__VA_ARGS__}), \
+    .cmd = (const uint8_t[]){__VA_ARGS__}, \
+}
+
+static const struct sd1306_cmd_t xconst sd1306_128_32_initcode[] = {
+    SD1306_CMD(SSD1306_SET_DISPLAY | 0), // display off
+    SD1306_CMD(SSD1306_MEMORYMODE, 0x00), // Page Addressing mode
+    SD1306_CMD(SSD1306_COMSCANDEC),             // Scan from 127 to 0 (Reverse scan)
+    SD1306_CMD(SSD1306_SETSTARTLINE | 0x00),    // First line to start scanning from
+    SD1306_CMD(SSD1306_SETCONTRAST, 0x7F),      // contast value to 0x7F according to datasheet
+    SD1306_CMD(SSD1306_SEGREMAP | 0x01),        // Use reverse mapping. 0x00 - is normal mapping
+    SD1306_CMD(SSD1306_NORMALDISPLAY),
+    SD1306_CMD(SSD1306_SETMULTIPLEX, 63),       // Reset to default MUX. See datasheet
+    SD1306_CMD(SSD1306_SETDISPLAYOFFSET, 0x00), // no offset
+    SD1306_CMD(SSD1306_SETDISPLAYCLOCKDIV, 0x80),// set to default ratio/osc frequency
+    SD1306_CMD(SSD1306_SETPRECHARGE, 0x22),     // switch precharge to 0x22 // 0xF1
+    SD1306_CMD(SSD1306_SETCOMPINS, 0x12),       // set divide ratio
+    SD1306_CMD(SSD1306_SETVCOMDETECT, 0x20),    // vcom deselect to 0x20 // 0x40
+    SD1306_CMD(SSD1306_CHARGEPUMP, 0x14),       // Enable charge pump
+    SD1306_CMD(SSD1306_DISPLAYALLON_RESUME),
+    SD1306_CMD(SSD1306_SET_DISPLAY | 1),
 };
 
-static struct sd1306_cmd_t xconst sd1306_128_64_initcode[] = {
-    { .length = 1, .cmd = { SSD1306_SET_DISPLAY | 0} }, // display off
-    { .length = 2, .cmd = { SSD1306_MEMORYMODE, 0x0} }, // Page Addressing mode
-    { .length = 1, .cmd = { SSD1306_SETSTARTLINE | 0x00} },    // First line to start scanning from
-    { .length = 2, .cmd = { SSD1306_SETCONTRAST, 0x7F} },      // contast value to 0x7F according to datasheet
-    { .length = 1, .cmd = { SSD1306_SEGREMAP | 0x01} },        // Use reverse mapping. 0x00 - is normal mapping
-    { .length = 1, .cmd = { SSD1306_NORMALDISPLAY} },
-    { .length = 2, .cmd = { SSD1306_SETMULTIPLEX, 63} },       // Reset to default MUX. See datasheet
-    { .length = 2, .cmd = { SSD1306_SETDISPLAYOFFSET, 0x00} }, // no offset
-    { .length = 2, .cmd = { SSD1306_SETDISPLAYCLOCKDIV, 0x80} },// set to default ratio/osc frequency
-    { .length = 2, .cmd = { SSD1306_SETPRECHARGE, 0x22} },     // switch precharge to 0x22 // 0xF1
-    { .length = 2, .cmd = { SSD1306_SETCOMPINS, 0x12} },       // set divide ratio
-    { .length = 2, .cmd = { SSD1306_SETVCOMDETECT, 0x20} },    // vcom deselect to 0x20 // 0x40
-    { .length = 2, .cmd = { SSD1306_CHARGEPUMP, 0x14} },       // Enable charge pump
-    { .length = 1, .cmd = { SSD1306_DISPLAYALLON_RESUME } },
-    { .length = 1, .cmd = { SSD1306_SET_DISPLAY | 1 } },
+static const struct sd1306_cmd_t xconst sd1306_128_64_initcode[] = {
+    SD1306_CMD(SSD1306_SET_DISPLAY | 0), // display off
+    SD1306_CMD(SSD1306_MEMORYMODE, 0x0), // Page Addressing mode
+    SD1306_CMD(SSD1306_SETSTARTLINE | 0x00),    // First line to start scanning from
+    SD1306_CMD(SSD1306_SETCONTRAST, 0x7F),      // contast value to 0x7F according to datasheet
+    SD1306_CMD(SSD1306_SEGREMAP | 0x01),        // Use reverse mapping. 0x00 - is normal mapping
+    SD1306_CMD(SSD1306_NORMALDISPLAY),
+    SD1306_CMD(SSD1306_SETMULTIPLEX, 63),       // Reset to default MUX. See datasheet
+    SD1306_CMD(SSD1306_SETDISPLAYOFFSET, 0x00), // no offset
+    SD1306_CMD(SSD1306_SETDISPLAYCLOCKDIV, 0x80),// set to default ratio/osc frequency
+    SD1306_CMD(SSD1306_SETPRECHARGE, 0x22),     // switch precharge to 0x22 // 0xF1
+    SD1306_CMD(SSD1306_SETCOMPINS, 0x12),       // set divide ratio
+    SD1306_CMD(SSD1306_SETVCOMDETECT, 0x20),    // vcom deselect to 0x20 // 0x40
+    SD1306_CMD(SSD1306_CHARGEPUMP, 0x14),       // Enable charge pump
+    SD1306_CMD(SSD1306_DISPLAYALLON_RESUME),
+    SD1306_CMD(SSD1306_SET_DISPLAY | 1),
 };
 
 void sd1306_display_init(struct display_t *disp) {
     struct display_bus_t *bus = disp->bus;
-    struct sd1306_cmd_t *initcode = NULL;
+    const struct sd1306_cmd_t *initcode = NULL;
     int initcode_len = 0;
             
     if (!bus || !bus->ops)
@@ -67,7 +72,8 @@ void sd1306_display_init(struct display_t *disp) {
     }
 	
     for (int i = 0; i < initcode_len; ++i) {
-		bus->ops->write(bus, 0, initcode[i].cmd, initcode[i].length);
+		bus->ops->write(bus, 0, (uint8_t *)&initcode[i].cmd[0], initcode[i].length);
+        usart_printf("%d - 0x%02x\n\r", initcode[i].length, initcode[i].cmd[0]);
     }
 }
 
