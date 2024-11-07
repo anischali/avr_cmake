@@ -36,6 +36,7 @@ static const struct sd1306_cmd_t sd1306_128_32_initcode[] = {
 static const struct sd1306_cmd_t sd1306_128_64_initcode[] = {
     SD1306_CMD(SSD1306_SET_DISPLAY | 0), // display off
     SD1306_CMD(SSD1306_MEMORYMODE, 0x02), // Page Addressing mode
+    SD1306_CMD(SSD1306_COMSCANDEC),             // Scan from 127 to 0 (Reverse scan)
     SD1306_CMD(SSD1306_SETSTARTLINE | 0x00),    // First line to start scanning from
     SD1306_CMD(SSD1306_SETCONTRAST, 0x7F),      // contast value to 0x7F according to datasheet
     SD1306_CMD(SSD1306_SEGREMAP | 0x01),        // Use reverse mapping. 0x00 - is normal mapping
@@ -77,11 +78,6 @@ void sd1306_display_init(struct display_t *disp) {
 	
     for (int i = 0; i < initcode_len; ++i) {
 		bus->ops->write(bus, 0, (uint8_t *)&initcode[i].cmd[0], initcode[i].length);
-        /*usart_printf("%d - 0x%02x", initcode[i].length, initcode[i].cmd[0]);
-        for (int j = 1; j < initcode[i].length; ++j) {
-            usart_printf(" 0x%02x ", initcode[i].cmd[j]);
-        }
-        usart_printf("\n\r");*/
     }
 }
 
@@ -160,14 +156,9 @@ void sd1306_display_set_brightness(struct display_t *disp, uint8_t value) {
 void sd1306_display_draw_screen(struct display_t *disp) {
     struct display_bus_t *bus = disp->bus;
     uint8_t *pixels = screen_get_buffer(disp->screen);
-    uint8_t cmds[] = { 0xB0, 0, 0xff, SSD1306_COLUMNADDR, 0, disp->width - 1 };
-    
     if (!bus || !bus->ops)
         return;
-
-    bus->ops->write(bus, 0x0, &cmds[0], sizeof(cmds) - 1);
-    bus->ops->write(bus, 0x0, &cmds[sizeof(cmds) - 1], 1);
-
+    
     for (int y = 0; y < disp->height >> 3; ++y) {
         sd1306_cmd(bus, 0x0, 0xB0 + y); // set page address
         sd1306_cmd(bus, 0x00, 0x0); // set lower col
