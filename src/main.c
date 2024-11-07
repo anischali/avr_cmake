@@ -163,8 +163,8 @@ ISR(PCINT2_vect)
     sei();
 }
 */
-DEFINE_MONOCHROME_SCREEN(mono_screen, 128, 32);
-DEFINE_I2C_DISPLAY(oled_sd1306, 128, 32, &mono_screen, I2C0, 0x3C, 400000, &i2c_display_ops, &sd1306_display_ops);
+DEFINE_MONOCHROME_SCREEN(mono_screen, 128, 64);
+DEFINE_I2C_DISPLAY(oled_sd1306, 128, 64, &mono_screen, I2C0, 0x3C, 100000, &i2c_display_ops, &sd1306_display_ops);
 
 
 void i2c_command(char *cmd) {
@@ -198,10 +198,28 @@ void i2c_command(char *cmd) {
     usart_printf("op: %d slave: 0x%02x subaddr: 0x%02x (ret: %d) val: 0x%04x\n\r", dir, slave, subaddr, ret, val);
 }
 
+
+uint8_t bat_bitmap[] = {
+    0xfe, 0xff,
+    0x03, 0xf0,
+    0x03, 0xf0,
+    0x03, 0xf0,
+    0x03, 0xf0,
+    0xfe, 0xff,
+};
+
+struct ebitmap_t bat = {
+    .width = 16,
+    .height = 6,
+    .bits_per_pixel = 1,
+    .pixels = bat_bitmap
+};
+
 void display_command(char *cmd) {
     char *save_ptr, *p;
     int i, ops = 0;
-    uint8_t val = 0;
+    uint8_t val = 0, val2 = 0;
+    struct point_t offset;
 
     for (i = 0, p = cmd; ; ++i, p = NULL) {
         p = strtok_r(p, " ", &save_ptr);
@@ -223,6 +241,7 @@ void display_command(char *cmd) {
                 else if (!strncmp(p, "clear", 5)) {
                     display_clear(&oled_sd1306);
                     usart_printf("disp clear\n\r");
+                    //screen_console_display(&mono_screen);
                     return;
                 }
                 else if (!strncmp(p, "bright", 6)) {
@@ -241,9 +260,27 @@ void display_command(char *cmd) {
                     ops = 2;
                     continue;
                 }
+                else if (!strncmp(p, "pix", 6)) {
+                    ops = 4;
+                    continue;
+                }
+                else if (!strncmp(p, "draw", 4)) {
+                    offset.x = mono_screen.width - bat.width - 1;
+                    offset.y = 0;
+                    screen_draw_bitmap(&mono_screen, &bat, &offset);
+                    display_draw_screen(&oled_sd1306);
+                    return;
+                }
+                else if (!strncmp(p, "print", 5)) {
+                    screen_console_display(&mono_screen);
+                    return;
+                }
                 break;
             case 2:
                 val = strtol(p, NULL, 10);
+                break;
+            case 3:
+                val2 = strtol(p, NULL, 10);
                 break;
         }
     }
@@ -266,6 +303,13 @@ void display_command(char *cmd) {
         display_set_brightness(&oled_sd1306, val);
         usart_printf("disp set bright to %d\n\r", val);
         break;
+    case 4:
+        offset.x = val;
+        offset.y = val2;
+
+        screen_set_pixel(&mono_screen, &offset, !screen_get_pixel(&mono_screen, &offset));
+        display_draw_screen(&oled_sd1306);
+        break;
     
     default:
         break;
@@ -287,10 +331,6 @@ void on_console_command(char *cmd) {
 int main() {
     console_init(on_console_command);
     display_init(&oled_sd1306);
-
-    delay_ms(5000);
-
-    display_power_off(&oled_sd1306);
 
     sei();
 

@@ -8,7 +8,7 @@
 
 
 int monochrome_screen_get_pixel(struct screen_t *screen, struct point_t *p) {
-    uint8_t pix = screen->pixels[(int)p->y / 8 * screen->width + p->x];
+    uint8_t pix = screen->pixels[(int)(p->y / 8) * screen->width + p->x];
 
     int b_pos = p->y % 8;
 
@@ -16,8 +16,7 @@ int monochrome_screen_get_pixel(struct screen_t *screen, struct point_t *p) {
 }
 
 void monochrome_screen_set_pixel(struct screen_t *screen, struct point_t *p, int pixel) {
-    uint8_t pix = screen->pixels[(int)p->y / 8 * screen->width + p->x];
-
+    uint8_t pix = screen->pixels[(int)(p->y / 8) * screen->width + p->x];
     int b_pos = p->y % 8;
 
     if (pixel) {
@@ -27,7 +26,7 @@ void monochrome_screen_set_pixel(struct screen_t *screen, struct point_t *p, int
         pix &= ~BIT(b_pos);
     }
 
-    screen->pixels[(int)p->y / 8 * screen->width + p->x] = pix;
+    screen->pixels[(int)(p->y / 8) * screen->width + p->x] = pix;
 }
 
 
@@ -47,7 +46,8 @@ void monochrome_screen_draw_bitmap(struct screen_t *screen, struct ebitmap_t *bi
             off.y = y;
             pix = bitmap_get_pixel(bitmap, &off);
             off.x = __min(off.x + offset->x, screen->width); 
-            off.y = __min(off.y + offset->y, screen->height); 
+            off.y = __min(off.y + offset->y, screen->height);
+            usart_printf("%d - %d [%d]\n\r", x, y, pix);
             screen_set_pixel(screen, &off, pix);
         }
     }
@@ -124,7 +124,7 @@ int bitmap_get_pixel(struct ebitmap_t *bitmap, struct point_t *offset) {
     case 1:
         uint8_t p8 = bitmap->pixels[(int)offset->y * (int)(bitmap->width / 8) + (int)(offset->x / 8)];
         int b_pos = offset->x % 8;
-        return (p8 & BIT(b_pos));
+        return (p8 & BIT(b_pos)) != 0 ? 1 : 0;
 
     case 8:
         uint8_t pix8 = bitmap->pixels[(int)offset->y * bitmap->width + offset->x];
