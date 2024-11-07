@@ -7,19 +7,19 @@
 
 
 
-int monochrome_screen_get_pixel(struct screen_t *screen, struct point_t *p) {
+uint32_t monochrome_screen_get_pixel(struct screen_t *screen, struct point_t *p) {
     uint8_t pix = screen->pixels[(int)(p->y / 8) * screen->width + p->x];
 
     int b_pos = p->y % 8;
 
-    return (pix & BIT(b_pos));
+    return (uint32_t)(((pix & BIT(b_pos)) != 0) ? 1 : 0);
 }
 
-void monochrome_screen_set_pixel(struct screen_t *screen, struct point_t *p, int pixel) {
+void monochrome_screen_set_pixel(struct screen_t *screen, struct point_t *p, uint32_t pixel) {
     uint8_t pix = screen->pixels[(int)(p->y / 8) * screen->width + p->x];
     int b_pos = p->y % 8;
 
-    if (pixel) {
+    if (pixel > 0) {
         pix |= BIT(b_pos);
     }
     else {
@@ -30,9 +30,9 @@ void monochrome_screen_set_pixel(struct screen_t *screen, struct point_t *p, int
 }
 
 
-void monochrome_screen_fill(struct screen_t *screen, int pixel) {
+void monochrome_screen_fill(struct screen_t *screen, uint32_t pixel) {
     int cnt = (screen->height >> 3) * screen->width;
-    uint8_t val = pixel ? 255 : 0;
+    uint8_t val = pixel > 0 ? 255 : 0;
     memset(screen->pixels, val, cnt);
 }
 
@@ -47,7 +47,6 @@ void monochrome_screen_draw_bitmap(struct screen_t *screen, struct ebitmap_t *bi
             pix = bitmap_get_pixel(bitmap, &off);
             off.x = __min(off.x + offset->x, screen->width); 
             off.y = __min(off.y + offset->y, screen->height);
-            usart_printf("%d - %d [%d]\n\r", x, y, pix);
             screen_set_pixel(screen, &off, pix);
         }
     }
@@ -75,7 +74,7 @@ void screen_console_display(struct screen_t *screen) {
     usart_printf("\n\r");
 }
 
-int screen_get_pixel(struct screen_t *screen, struct point_t *p) {
+uint32_t screen_get_pixel(struct screen_t *screen, struct point_t *p) {
     if (!screen->ops || !screen->ops->get_pixel)
         return 0;
 
@@ -83,7 +82,7 @@ int screen_get_pixel(struct screen_t *screen, struct point_t *p) {
 }
 
 
-void screen_set_pixel(struct screen_t *screen, struct point_t *p, int pixel) {
+void screen_set_pixel(struct screen_t *screen, struct point_t *p, uint32_t pixel) {
     
     if (!screen->ops || !screen->ops->set_pixel)
         return;
@@ -116,8 +115,7 @@ void screen_draw_bitmap(struct screen_t *screen, struct ebitmap_t *bitmap, struc
     screen->ops->draw_bitmap(screen, bitmap, offset);
 }
 
-
-int bitmap_get_pixel(struct ebitmap_t *bitmap, struct point_t *offset) {
+uint32_t bitmap_get_pixel(struct ebitmap_t *bitmap, struct point_t *offset) {
 
     switch (bitmap->bits_per_pixel)
     {
@@ -142,5 +140,28 @@ int bitmap_get_pixel(struct ebitmap_t *bitmap, struct point_t *offset) {
 
     default:
         return 0;
+    }
+}
+
+
+void bitmap_set_pixel(struct ebitmap_t *bitmap, struct point_t *offset, uint32_t pix) {
+
+    switch (bitmap->bits_per_pixel)
+    {
+    case 1:
+        uint8_t p8 = bitmap->pixels[(int)offset->y * (int)(bitmap->width / 8) + (int)(offset->x / 8)];
+        int b_pos = offset->x % 8;
+        p8 = ((pix > 0) ? (p8 | BIT(b_pos)) : (p8 & ~BIT(b_pos)));
+        bitmap->pixels[(int)offset->y * (int)(bitmap->width / 8) + (int)(offset->x / 8)] = p8;
+        break;
+    case 8:
+        bitmap->pixels[(int)offset->y * bitmap->width + offset->x] = (uint8_t)pix;
+        break;
+    case 16:
+        memcpy(&bitmap->pixels[offset->y * bitmap->width + offset->x], (uint8_t *)&pix, sizeof(uint16_t));
+        break;
+    case 32:
+        memcpy(&bitmap->pixels[offset->y * bitmap->width + offset->x], (uint8_t *)&pix, sizeof(uint32_t));
+        break;
     }
 }
