@@ -13,6 +13,7 @@ set(AVR_PROJECT_SOURCES
     lib/display/screen.c
     lib/display/display_i2c.c
     lib/display/sd1306/sd1306_display.c
+    lib/font/font.c
 )
 
 set(AVR_PROJECT_HEADERS_DIR
@@ -23,6 +24,7 @@ set(AVR_PROJECT_HEADERS_DIR
     lib/common/
     lib/console/
     lib/list/
+    lib/font/
     lib/display/
     lib/display/sd1306/
 )
