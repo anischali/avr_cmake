@@ -23,6 +23,6 @@ static inline void delay_ms(long ms) {
 #define ARRAY_SIZE(x) (sizeof(x) / sizeof((x)[0]))
 #endif
 
-#define xconst __attribute__ ((used, section(".text"))) 
+#define xconst(v) __attribute__ ((used, section(".progmemx."#v))) v
 
 #endif

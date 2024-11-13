@@ -12,16 +12,16 @@ set(CMAKE_INCLUDE_DIRECTORIES_BEFORE /usr/lib/avr/include)
 set(CMAKE_LINK_DIRECTORIES_BEFORE /usr/lib/avr/lib)
 
 add_compile_options(
-    -I/usr/lib/avr/include -DF_CPU=${AVR_F_CPU_CLK_SPEED_HZ}
-    -ffunction-sections -fdata-sections -mmcu=${AVR_PROJECT_DEVICE} 
-    -ffreestanding -flto -fno-strict-aliasing -Os -Wall -fmessage-length=0
+    -std=gnu11 -mmcu=${AVR_PROJECT_DEVICE} -DF_CPU=${AVR_F_CPU_CLK_SPEED_HZ}
+    -ffunction-sections -fdata-sections -ffreestanding -fno-strict-aliasing
+    -Os -Wall -fmessage-length=0 -I/usr/lib/avr/include
 )
 
 add_link_options(
-    -mthumb -mmcu=${AVR_PROJECT_DEVICE} -Xlinker -Map=${AVR_PROJECT_NAME}.map -Xlinker 
+    -mthumb -mmcu=${AVR_PROJECT_DEVICE} -Xlinker -Map=${AVR_PROJECT_NAME}.map 
+    -std=gnu11 -Wl,--start-group -lm  -Wl,--end-group -Wl,--gc-sections -g3 -Os -ggdb 
     -T${CMAKE_CURRENT_BINARY_DIR}/../src/${AVR_PROJECT_LDSCRIPT} 
-    -std=gnu11 -Wl,--start-group -lm  -Wl,--end-group -Wl,--gc-sections -Os
-    -Wl,--cref -Wl,--print-memory-usage
+    -Os -Wl,--cref -Wl,--print-memory-usage
 )
 
 include_directories(${AVR_PROJECT_HEADERS_DIR})

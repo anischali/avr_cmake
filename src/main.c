@@ -12,7 +12,7 @@
 #include "i2c_master.h"
 #include "display.h"
 #include "sd1306_display.h"
-
+#include "font.h"
 
 #define min(a, b) ((a < b) ? a : b)
 #define max(a, b) ((a > b) ? a : b)
@@ -40,7 +40,7 @@ int clamp(int value)
     return value / 4;
 }
 
-
+/*
 void pwm_usart_recv(char c) {
 
     switch (c)
@@ -62,7 +62,7 @@ void pwm_usart_recv(char c) {
             break;
         case 'h':
             duty += 5;
-            break;
+            break; 
         case 'r':
             duty -= 5;
             break;
@@ -74,7 +74,7 @@ void pwm_usart_recv(char c) {
     OCR1B = duty;
     OCR1A = 255 - duty;
 }
-
+*/
 
 void rf_send(char c)
 {
@@ -165,7 +165,10 @@ ISR(PCINT2_vect)
 */
 DEFINE_MONOCHROME_SCREEN(mono_screen, 128, 64);
 DEFINE_I2C_DISPLAY(oled_sd1306, 128, 64, &mono_screen, I2C0, 0x3C, 100000, &i2c_display_ops, &sd1306_display_ops);
-
+struct font_ops_t ascii_5x8_ops = {
+    .fill_pixels = ascii_5x8_fill_pixels,
+};
+DECLARE_FONT(ascii_5x8, 8, 5, 1, ascii_5x8_font, &ascii_5x8_ops);
 
 void i2c_command(char *cmd) {
     char *save_ptr, *p;
@@ -217,7 +220,7 @@ struct ebitmap_t bat = {
 
 void display_command(char *cmd) {
     char *save_ptr, *p;
-    int i, ops = 0;
+    int i, ops = -1;
     uint8_t val = 0, val2 = 0;
     struct point_t offset;
 
@@ -228,6 +231,10 @@ void display_command(char *cmd) {
 
         switch (i) {
             case 1:
+                if (!strncmp(p, "init", 4)) {
+                    display_init(&oled_sd1306);
+                    return;
+                }
                 if (!strncmp(p, "on", 2)) {
                     display_power_on(&oled_sd1306);
                     usart_printf("disp on\n\r");
@@ -266,13 +273,21 @@ void display_command(char *cmd) {
                 }
                 else if (!strncmp(p, "draw", 4)) {
                     offset.x = mono_screen.width - bat.width - 1;
-                    offset.y = 0;
+                    offset.y = 0; //mono_screen.height - bat.height - 1;
                     screen_draw_bitmap(&mono_screen, &bat, &offset);
                     display_draw_screen(&oled_sd1306);
                     return;
                 }
                 else if (!strncmp(p, "print", 5)) {
                     screen_console_display(&mono_screen);
+                    return;
+                }
+                else if (!strncmp(p, "font", 4)) {
+                    offset.x = 0;
+                    offset.y = 0;
+                    screen_write_font(&mono_screen, &ascii_5x8, &offset, "%s", "!!!!");
+                    display_draw_screen(&oled_sd1306);
+
                     return;
                 }
                 break;
@@ -330,7 +345,6 @@ void on_console_command(char *cmd) {
 
 int main() {
     console_init(on_console_command);
-    display_init(&oled_sd1306);
 
     sei();
 

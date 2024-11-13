@@ -7,14 +7,14 @@
 struct sd1306_cmd_t {
     int length;
     const uint8_t *cmd;
-};
+} __attribute__((__packed__));
 
 #define SD1306_CMD(...) { \
     .length = sizeof((const uint8_t[]){__VA_ARGS__}), \
     .cmd = (const uint8_t[]){__VA_ARGS__}, \
 }
 
-static const struct sd1306_cmd_t sd1306_128_32_initcode[] = {
+static const struct sd1306_cmd_t xconst(sd1306_128_32_initcode[]) = {
     SD1306_CMD(SSD1306_SET_DISPLAY | 0), // display off
     SD1306_CMD(SSD1306_MEMORYMODE, 0x02), // Page Addressing mode
     SD1306_CMD(SSD1306_COMSCANDEC),             // Scan from 127 to 0 (Reverse scan)
@@ -32,6 +32,7 @@ static const struct sd1306_cmd_t sd1306_128_32_initcode[] = {
     SD1306_CMD(SSD1306_DISPLAYALLON_RESUME),
     SD1306_CMD(SSD1306_SET_DISPLAY | 1),
 };
+#define SD1306_128_32_LEN ARRAY_SIZE(sd1306_128_32_initcode)
 
 static const struct sd1306_cmd_t sd1306_128_64_initcode[] = {
     SD1306_CMD(SSD1306_SET_DISPLAY | 0), // display off
@@ -51,9 +52,14 @@ static const struct sd1306_cmd_t sd1306_128_64_initcode[] = {
     SD1306_CMD(SSD1306_DISPLAYALLON_RESUME),
     SD1306_CMD(SSD1306_SET_DISPLAY | 1),
 };
+#define SD1306_128_64_LEN ARRAY_SIZE(sd1306_128_64_initcode)
 
-static inline void sd1306_cmd(struct display_bus_t *bus, uint8_t addr, const uint8_t cmd) {
-    bus->ops->write(bus, addr, (uint8_t *)&cmd, 1);
+static inline int sd1306_cmd(struct display_bus_t *bus, uint8_t addr, const uint8_t cmd) {
+
+    if (!bus || !bus->ops)
+        return -1;
+    
+    return bus->ops->write(bus, addr, (uint8_t *)&cmd, 1);
 }
 
 void sd1306_display_init(struct display_t *disp) {
@@ -68,12 +74,11 @@ void sd1306_display_init(struct display_t *disp) {
 
     if (disp->height == 32) {
         initcode = sd1306_128_32_initcode;
-        initcode_len = ARRAY_SIZE(sd1306_128_32_initcode);
+        initcode_len = SD1306_128_32_LEN;
     }
     else if (disp->height == 64) {
         initcode = sd1306_128_64_initcode;
-        initcode_len = ARRAY_SIZE(sd1306_128_64_initcode);
-
+        initcode_len = SD1306_128_64_LEN;
     }
 	
     for (int i = 0; i < initcode_len; ++i) {
@@ -81,57 +86,25 @@ void sd1306_display_init(struct display_t *disp) {
     }
 }
 
-
-
 void sd1306_display_power_off(struct display_t *disp) {
-    struct display_bus_t *bus = disp->bus;
-    uint8_t cmd[] = { 0xAE };
-
-    if (!bus || !bus->ops)
-        return;
-
-    bus->ops->write(bus, 0, &cmd[0], sizeof(cmd));
+    sd1306_cmd(disp->bus, 0x0, SSD1306_SET_DISPLAY | 0);
 }
 
 
 void sd1306_display_power_on(struct display_t *disp) {
-    struct display_bus_t *bus = disp->bus;
-    uint8_t cmd[] = { 0xAF };
-
-    if (!bus || !bus->ops)
-        return;
-    
-    bus->ops->write(bus, 0, &cmd[0], sizeof(cmd));
+    sd1306_cmd(disp->bus, 0x0, SSD1306_SET_DISPLAY | 1);
 }
 
 void sd1306_display_invert(struct display_t *disp, bool mode) {
-    struct display_bus_t *bus = disp->bus;
-    uint8_t cmd[] = { mode ? SSD1306_INVERTDISPLAY : SSD1306_NORMALDISPLAY };
-
-    if (!bus || !bus->ops)
-        return;
-    
-    bus->ops->write(bus, 0, &cmd[0], sizeof(cmd));
+    sd1306_cmd(disp->bus, 0x0, mode ? SSD1306_INVERTDISPLAY : SSD1306_NORMALDISPLAY);
 }
 
 void sd1306_display_flip_horizontal(struct display_t *disp, bool mode) {
-    struct display_bus_t *bus = disp->bus;
-    uint8_t cmd[] = { SSD1306_SEGREMAP | (mode ? 0 : 1) };
-
-    if (!bus || !bus->ops)
-        return;
-    
-    bus->ops->write(bus, 0, &cmd[0], sizeof(cmd));
+    sd1306_cmd(disp->bus, 0x0, SSD1306_SEGREMAP | (mode ? 0 : 1));
 }
 
 void sd1306_display_flip_vertical(struct display_t *disp, bool mode) {
-    struct display_bus_t *bus = disp->bus;
-    uint8_t cmd[] = { mode ? SSD1306_COMSCANINC : SSD1306_COMSCANDEC };
-
-    if (!bus || !bus->ops)
-        return;
-    
-    bus->ops->write(bus, 0, &cmd[0], sizeof(cmd));
+    sd1306_cmd(disp->bus, 0x0, mode ? SSD1306_COMSCANINC : SSD1306_COMSCANDEC);
 }
 
 void sd1306_display_clear_screen(struct display_t *disp) {
@@ -142,15 +115,8 @@ void sd1306_display_clear_screen(struct display_t *disp) {
 }
 
 void sd1306_display_set_brightness(struct display_t *disp, uint8_t value) {
-    struct display_bus_t *bus = disp->bus;
-    uint8_t cmd[] = { 0x81 };
-
-    if (!bus || !bus->ops) {
-        return;
-	}
-
-	bus->ops->write(bus, 0, &cmd[0], sizeof(cmd));
-	bus->ops->write(bus, 0, &value, sizeof(value));
+    sd1306_cmd(disp->bus, 0x0, SSD1306_SETCONTRAST);
+    sd1306_cmd(disp->bus, 0x0, value);
 }
 
 void sd1306_display_draw_screen(struct display_t *disp) {
